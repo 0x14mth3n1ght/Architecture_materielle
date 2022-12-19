@@ -1,0 +1,16 @@
+; Déclaration des labels
+GetInput:
+    ; Code pour récupérer l'entier n et le caractère c saisis par l'utilisateur
+
+DisplaySquare:
+    ; Code pour afficher un carré de taille n composé de caractères c
+
+Loop:
+    ; Déplacement vers la routine de récupération de l'entrée
+    jal GetInput
+
+    ; Déplacement vers la routine d'affichage du carré
+    jal DisplaySquare
+
+    ; Retourner au début de la boucle pour récupérer de nouvelles entrées et afficher un nouveau carré
+    jal Loop

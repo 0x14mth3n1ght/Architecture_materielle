@@ -1,0 +1,55 @@
+1) Récupération des sources
+
+1a) récupérer les archives de psys et log sur la page web du cours :
+  http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/log-5.66.tar.gz
+  http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/psys-1.61.tar.gz
+
+1b) récupérer les patches permettant de compiler diglog en 64 bits sur :
+  http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/diglog.patch
+  http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/perfs.patch
+  http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/additional.patch
+
+1c) créer un dossier diglog et décompresser les archives téléchargées dedans :
+  $ mkdir diglog
+  $ cd diglog
+  $ tar xf ../psys*.tar.gz
+  $ tar xf ../log*.tar.gz
+
+1d) toujours dans le dossier diglog, appliquer les patchs :
+  $ patch -p1 < ../diglog.patch
+  $ patch -p1 < ../perfs.patch        # seulement si nécessaire
+  $ patch -p1 < ../additional.patch   # qqs modifs pour les salles de TP
+
+
+
+2) Compilation de psys
+
+2a) se placer dans diglog/psys/src
+  $ cd psys/src
+
+2b) lancer la compilation via
+  $ make
+En cas de problème, modifier le fichier Makefile et relancer la compilation.
+
+
+3) Compilation (ana/dig)log
+
+3a) créer un sous-dossier bin dans le dossier diglog :
+  $ cd ../../
+  $ mkdir bin
+
+3b) se placer dans diglog/log/src
+  $ cd log/src
+
+3c) compiler avec :
+  $ make
+En cas de problème, modifier les fichiers ana/Makefile et Makefile, puis
+relancer la compilation.
+
+
+
+4) Enjoy
+
+Revenir dans le dossier diglog et lancer :
+  $ cd ../..
+  $ ./bin/diglog

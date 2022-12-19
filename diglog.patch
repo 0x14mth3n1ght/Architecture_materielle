@@ -1,0 +1,3120 @@
+Only in diglog64: bin
+Only in diglog64: lib
+diff -aur diglog32/log/src/ana/Makefile diglog64/log/src/ana/Makefile
+--- diglog32/log/src/ana/Makefile	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/ana/Makefile	2017-02-05 16:30:31.058638000 +0100
+@@ -106,7 +106,7 @@
+ ##   -m68040              : for 68040 and 68060
+ ## 
+ 
+-CHIPMUNKFLAGS = 
++CHIPMUNKFLAGS = -DBSD -Dlinux -DF_OK=0 
+ 
+ CFLAGS =  $(CHIPMUNKFLAGS) -I$(LOCINC) -I$(XINCLUDEDIR)
+ 
+diff -aur diglog32/log/src/log.c diglog64/log/src/log.c
+--- diglog32/log/src/log.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/log.c	2017-02-05 17:29:50.756006000 +0100
+@@ -278,7 +278,7 @@
+ #ifdef __alpha__
+   int ptr;
+ #else
+-  long ptr;
++  int32_t ptr;
+ #endif
+   uchar numvects, numpins, numpnums, lblsize, simtype, procsize;
+   /* log_kflags */ short flag;
+@@ -297,7 +297,7 @@
+ #ifdef __alpha__
+   int i[64];
+ #else
+-  long i[64];
++  int32_t i[64];
+ #endif
+   log_pac8 ix[32];
+   ovectorrec vec[64];
+@@ -3272,9 +3272,9 @@
+ 
+ Static Void drawvector4(v, x1, y1, x2, y2, x3, y3, x4, y4)
+ log_vectorrec *v;
+-long x1, y1, x2, y2, x3, y3, x4, y4;
++int32_t x1, y1, x2, y2, x3, y3, x4, y4;
+ {
+-  long xarr[4], yarr[4];
++  int xarr[4], yarr[4];
+ 
+   switch (v->vkind) {
+ 
+@@ -8504,9 +8504,9 @@
+   log_nrec *savenode;
+   short i, j;
+   log_nrec **oldnode;
+-  long done[log_maxpins / 32 + 2];
++  int32_t done[log_maxpins / 32 + 2];
+   short FORLIM;
+-  long SET[9];
++  int32_t SET[9];
+ 
+   if (gg.traceflag)
+     fprintf(tracefile, "Disconnect gate %ld\n", (long)g);
+@@ -20216,7 +20216,7 @@
+   }
+ /* p2c: log.text, line 18951:
+  * Note: Suspicious mixture of sizes in NA_NEW [173] */
+-  mp3 = (macrorec *)Malloc(strlen(name) + 9L);
++  mp3 = (macrorec *)Malloc(sizeof(macrorec));
+   if (mp != NULL && mp->key == key) {
+     mp3->next = mp->next;
+     Free(mp);
+diff -aur diglog32/log/src/loged.c diglog64/log/src/loged.c
+--- diglog32/log/src/loged.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/loged.c	2017-02-05 16:49:55.070554000 +0100
+@@ -4686,9 +4686,9 @@
+ Static Void connectcmd()
+ {
+   long i, j, k, n, n0;
+-  long st[log_maxpins / 32 + 2];
++  int32_t st[log_maxpins / 32 + 2];
+   Char *STR1;
+-  long SET[257];
++  int32_t SET[257];
+   long FORLIM;
+ 
+   if (curkind == NULL) {
+@@ -5380,7 +5380,7 @@
+ {
+   struct LOC_dumpcmd V;
+   long i, n, curcol;
+-  long st[log_maxpins / 32 + 2];
++  int32_t st[log_maxpins / 32 + 2];
+   na_strlist *def, *fonts, *l1;
+   boolean markerfont;
+   double x, y, dx, dy, norm;
+@@ -5388,7 +5388,7 @@
+   Char STR3[256];
+   long FORLIM;
+   vectorrec *WITH;
+-  long SET[257];
++  int32_t SET[257];
+   FILE *preamble;
+   int predata;
+   Char prefile[1024];
+@@ -6228,11 +6228,11 @@
+   short i, n, curcol;
+   na_strlist *def, *l1;
+   Char buf[256];
+-  long st[log_maxpins / 32 + 2];
++  int32_t st[log_maxpins / 32 + 2];
+   Char STR2[256];
+   short FORLIM;
+   vectorrec *WITH;
+-  long SET[257];
++  int32_t SET[257];
+ 
+   fprintf(LINK->f, "kind %s\n", k->name);
+   if (k->simtype != 0)
+diff -aur diglog32/log/src/logsimh.c diglog64/log/src/logsimh.c
+--- diglog32/log/src/logsimh.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/logsimh.c	2017-02-05 17:23:10.088248000 +0100
+@@ -669,11 +669,11 @@
+ 
+ 
+ typedef struct noderec {
+-  long poss, nextposs;
++  int32_t poss, nextposs;
+   short isused, wasused, isdef, wasdef;
+   boolean alwaysconn, strong, wasstrong, loopflag;
+   instrrec *defn;
+-  long level;
++  int32_t level;
+   short truenum;
+ } noderec;
+ 
+@@ -681,10 +681,10 @@
+ 
+ typedef struct trailrec {
+   struct trailrec *next;
+-  long num;
+-  long oldposs;
++  int32_t num;
++  int32_t oldposs;
+   boolean oldstrong;
+-  long oldlevel;
++  int32_t oldlevel;
+ } trailrec;
+ 
+ 
+@@ -703,7 +703,7 @@
+   log_nrec **pins;
+   uchar *pproc;
+   short numpins;
+-  long *ins, *outs;
++  int32_t *ins, *outs;
+ } gaterec;
+ 
+ typedef gaterec gatearray[log_million];
+@@ -1495,7 +1495,7 @@
+ {
+   struct LOC_parsegates V;
+   long i, j, num, best, setsize, first, numg, previnstrcount;
+-  long *defs, *tdefs;
++  int32_t *defs, *tdefs;
+   log_grec *g1;
+   gaterec *glist;
+   instinfo *instii;
+@@ -1506,12 +1506,12 @@
+   gaterec *WITH;
+   Char STR2[256];
+   long FORLIM, FORLIM1;
+-  long SET[257];
+-  long SET1[257];
+-  long SET2[257];
++  int32_t SET[257];
++  int32_t SET1[257];
++  int32_t SET2[257];
+   pdrec *WITH1;
+-  long SET3[257];
+-  long SET4[257];
++  int32_t SET3[257];
++  int32_t SET4[257];
+ 
+ 
+   V.LINK = LINK;
+@@ -1601,7 +1601,7 @@
+   /* Sort gates into mostly "causal" order */
+   if (LINK->optlevel >= 2 && LINK->okay) {
+     setsize = setbytes(LINK->curppin + LINK->numports, LINK);
+-    defs = (long *)Malloc(setsize);
++    defs = (int32_t*)Malloc(setsize);
+     P_addsetr(P_expset(defs, 0L), 0, (int)(LINK->numports - 1));
+     if (vddsig->np->simtype == logsima_tool_16 &&
+ 	(long)vddsig->np->temp != LONG_MIN)
+@@ -1609,12 +1609,12 @@
+     if (gndsig->np->simtype == logsima_tool_16 &&
+ 	(long)gndsig->np->temp != LONG_MIN)
+       P_addset(defs, (int)((long)gndsig->np->temp + LINK->numports));
+-    tdefs = (long *)Malloc(setsize);
++    tdefs = (int32_t *)Malloc(setsize);
+     for (i = 0; i < numg; i++) {
+       WITH = &glist[i];
+-      WITH->ins = (long *)Malloc(setsize);
++      WITH->ins = (int32_t *)Malloc(setsize);
+       P_expset(WITH->ins, 0L);
+-      WITH->outs = (long *)Malloc(setsize);
++      WITH->outs = (int32_t *)Malloc(setsize);
+       P_expset(WITH->outs, 0L);
+       FORLIM = WITH->numpins;
+       for (j = 0; j < FORLIM; j++) {
+@@ -2703,6 +2703,7 @@
+     break;
+ 
+   default:
++    assert(false);
+     break;
+   }
+   return Result;
+@@ -2830,13 +2831,13 @@
+ 
+ Local Void builddefvusev(ip, defv, usev, LINK)
+ instrrec *ip;
+-long *defv, *usev;
++int32_t *defv, *usev;
+ struct LOC_simplstmt *LINK;
+ {
+   instrrec *ip2;
+   long i;
+-  long SET[257];
+-  long SET1[257];
++  int32_t SET[257];
++  int32_t SET1[257];
+ 
+   for (i = 0; i <= 2; i++) {
+     ip2 = ip->UU.args[i];
+@@ -2862,7 +2863,7 @@
+ 
+ Local Void checkdefvusev(ip, defv, usev, good, LINK)
+ instrrec *ip;
+-long *defv, *usev;
++int32_t *defv, *usev;
+ boolean *good;
+ struct LOC_simplstmt *LINK;
+ {
+@@ -2900,7 +2901,7 @@
+ struct LOC_simplstmt *LINK;
+ {
+   instrrec *ip2, *ip3, **ipp2;
+-  long *defv1, *usev1, *defv2, *usev2;
++  int32_t *defv1, *usev1, *defv2, *usev2;
+   boolean good1, good2, localchg;
+   instrops otherif;
+   long i;
+@@ -2916,10 +2917,10 @@
+     {  /*possible candidate for combination*/
+       if (defv1 == NULL) {
+ 	i = setbytes(LINK->LINK->LINK->savecurpvar, LINK->LINK->LINK);
+-	defv1 = (long *)Malloc(i);
+-	usev1 = (long *)Malloc(i);
+-	defv2 = (long *)Malloc(i);
+-	usev2 = (long *)Malloc(i);
++	defv1 = (int32_t*)Malloc(i);
++	usev1 = (int32_t*)Malloc(i);
++	defv2 = (int32_t*)Malloc(i);
++	usev2 = (int32_t*)Malloc(i);
+ 	P_expset(defv2, 0L);
+ 	P_expset(usev2, 0L);
+ 	builddefvusev(LINK->ip, defv2, usev2, LINK);
+diff -aur diglog32/log/src/lplot.c diglog64/log/src/lplot.c
+--- diglog32/log/src/lplot.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/lplot.c	2017-02-05 17:00:58.019352000 +0100
+@@ -787,7 +787,7 @@
+ 
+ 
+ Local Void sortints(x, y, LINK)
+-long *x, *y;
++int32_t *x, *y;
+ struct LOC_Log_lplot_proc *LINK;
+ {
+   long t;
+@@ -980,7 +980,7 @@
+   log_hwrec *hw;
+   log_vwrec *vw;
+   log_srec *s;
+-  long vx1, vy1, vx2, vy2;
++  int32_t vx1, vy1, vx2, vy2;
+   short rxx, rxy, ryx, ryy;
+   long i, j, x0, y0, x3, y3;
+   log_action *WITH;
+@@ -1144,9 +1144,9 @@
+ struct LOC_doplotfile *LINK;
+ {
+   struct LOC_plotfile V;
+-  long x1, y1, x2, y2, d, d1;
++  int32_t x1, y1, x2, y2, d, d1;
+   double rx1, ry1, rx2, ry2, rx3, ry3, rx4, ry4;
+-  long xarr[4], yarr[4];
++  int32_t xarr[4], yarr[4];
+   short rxx, rxy, ryx, ryy;
+   Char name[256], st[256];
+   Char ch;
+@@ -1875,7 +1875,7 @@
+ Local Void zoomincommand(LINK)
+ struct LOC_doplotfile *LINK;
+ {
+-  long x1, y1, xx1, yy1, x2, y2, xx2, yy2;
++  int32_t x1, y1, xx1, yy1, x2, y2, xx2, yy2;
+   Char ch;
+   log_action *WITH;
+   
+@@ -2374,7 +2374,8 @@
+ struct LOC_doplotdata *LINK;
+ {
+   double stupid;
+-  long x1, y1, x2, y2, i;
++  int32_t x1, y1, x2, y2;
++  long i;
+   log_action *WITH;
+   Char STR1[17], STR2[17];
+   log_gattrrec *WITH1;
+diff -aur diglog32/log/src/Makefile diglog64/log/src/Makefile
+--- diglog32/log/src/Makefile	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/log/src/Makefile	2017-02-05 16:30:42.098590000 +0100
+@@ -181,7 +181,7 @@
+ ##   -m68040              : for 68040 and 68060
+ ## 
+ 
+-CHIPMUNKFLAGS = 
++CHIPMUNKFLAGS = -DBSD -Dlinux -DF_OK=0 
+ 
+ CFLAGS =  $(CHIPMUNKFLAGS) -I$(LOCINC) -I$(XINCLUDEDIR) -DLOGLIB=\"$(LOGLIBDIR)\" -DF_OK=0
+ 
+Only in diglog32: log/src/munch.temp
+Only in diglog32: log/src/simdir.c 
+Only in diglog32: log/src/tooldir.c 
+diff -aur diglog32/psys/include/p2c/newasm.h diglog64/psys/include/p2c/newasm.h
+--- diglog32/psys/include/p2c/newasm.h	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/include/p2c/newasm.h	2017-02-05 14:48:25.506555000 +0100
+@@ -45,7 +45,7 @@
+ #define na_long na_longword
+-
++#include <stdint.h>
+ typedef union na_long {
+-  long i;
++  int32_t i;
+   struct {
+     short i1, i2;
+   } U2;
+@@ -65,10 +65,10 @@
+   } U6;
+   Char c[4];
+   uchar ub[4];
+-  long sb;
+-  unsigned long b4;
+-  unsigned long b2;
+-  unsigned long b;
++  int32_t sb;
++  uint32_t b4;
++  uint32_t b2;
++  uint32_t b;
+   Anyptr sr;
+   Char str[4];
+   Char *sp;
+@@ -85,7 +85,7 @@
+   struct {
+     unsigned sign : 1, mag : 31;
+   } U27;
+-  long *setp;
++  int32_t *setp;
+   struct {
+     na_word w1, w2;
+   } U99;
+@@ -96,7 +96,7 @@
+ 
+ typedef union na_quadword {
+   struct {
+-    long i1, i2;
++    int32_t i1, i2;
+   } U1;
+   short si[4];
+   unsigned short su[4];
+@@ -147,7 +147,7 @@
+   _PROCEDURE pr;
+   struct {
+     unsigned rsign : 1, rexp : 11, rmant1 : 20;
+-    long rmant2;
++    int32_t rmant2;
+   } U28;
+   na_word w[4];
+   struct {
+@@ -174,165 +174,165 @@
+ 
+ typedef na_strlistrec na_strlist;
+ 
+-extern Void na_fillbyte PP((long *d, long w, long n));
+-extern Void na_fillword PP((long *d, long w, long n));
+-extern Void na_fill PP((long *d, long w, long n));
+-extern Void na_fillp PP((Anyptr d, long w, long n));
+-extern Void na_move PP((long *s, long *d, long size));
+-extern Void na_movep PP((Anyptr s, Anyptr d, long size));
+-extern Void na_exch PP((long *s, long *d, long size));
+-extern Void na_exchp PP((Anyptr s, Anyptr d, long size));
+-extern long na_comp PP((long *a, long *b, long size));
+-extern long na_compp PP((Anyptr a, Anyptr b, long size));
+-extern long na_scaneq PP((long *s, long what, long size));
+-extern long na_scaneqp PP((Anyptr s, long what, long size));
+-extern long na_scanne PP((long *s, long what, long size));
+-
+-extern long na_scannep PP((Anyptr s, long what, long size));
+-extern Void na_new PP((Anyptr *p, long s));
+-extern Void na_dispose PP((Anyptr *p, long s));
+-extern Void na_alloc PP((Anyptr *p, long s));
+-extern Void na_outeralloc PP((Anyptr *p, long s, long parframe));
++extern Void na_fillbyte PP((int32_t *d, int32_t w, int32_t n));
++extern Void na_fillword PP((int32_t *d, int32_t w, int32_t n));
++extern Void na_fill PP((int32_t *d, int32_t w, int32_t n));
++extern Void na_fillp PP((Anyptr d, int32_t w, int32_t n));
++extern Void na_move PP((int32_t *s, int32_t *d, int32_t size));
++extern Void na_movep PP((Anyptr s, Anyptr d, int32_t size));
++extern Void na_exch PP((int32_t *s, int32_t *d, int32_t size));
++extern Void na_exchp PP((Anyptr s, Anyptr d, int32_t size));
++extern int32_t na_comp PP((int32_t *a, int32_t *b, int32_t size));
++extern int32_t na_compp PP((Anyptr a, Anyptr b, int32_t size));
++extern int32_t na_scaneq PP((int32_t *s, int32_t what, int32_t size));
++extern int32_t na_scaneqp PP((Anyptr s, int32_t what, int32_t size));
++extern int32_t na_scanne PP((int32_t *s, int32_t what, int32_t size));
++
++extern int32_t na_scannep PP((Anyptr s, int32_t what, int32_t size));
++extern Void na_new PP((Anyptr *p, int32_t s));
++extern Void na_dispose PP((Anyptr *p, int32_t s));
++extern Void na_alloc PP((Anyptr *p, int32_t s));
++extern Void na_outeralloc PP((Anyptr *p, int32_t s, int32_t parframe));
+ extern Void na_free PP((Anyptr *p));
+ 
+-extern long na_memavail PV();
+-extern long na_and PP((long x, long y));
+-extern long na_bic PP((long x, long y));
+-extern long na_or PP((long x, long y));
+-extern long na_xor PP((long x, long y));
+-extern long na_not PP((long x));
+-extern boolean na_mask PP((long x, long y));
+-extern boolean na_test PP((long n, long x));
+-extern Void na_set PP((long n, long *x));
+-extern Void na_clear PP((long n, long *x));
+-extern long na_log2 PP((long n));
+-extern long na_po2 PP((long n));
+-extern long na_lobits PP((long n));
+-extern long na_hibits PP((long n));
+-extern long na_asl PP((long n, long x));
+-extern long na_lsl PP((long n, long x));
+-
+-extern long na_rol PP((long n, long x));
+-extern Void na_bfclr PP((long *v, long offset, long size));
+-extern Void na_bfset PP((long *v, long offset, long size));
+-extern Void na_bfchg PP((long *v, long offset, long size));
+-extern boolean na_bftst PP((long *v, long offset, long size));
+-extern Void na_bffill PP((long *v, long offset, long size, int b));
+-extern Void na_bfmove PP((long *s, long soff, long *d, long doff, long size));
+-extern Void na_bfrev PP((long *v, long offset, long size));
+-extern Void na_bfins PP((long *v, long offset, long size, long val));
+-extern long na_bfextu PP((long *v, long offset, long size));
+-extern long na_bfexts PP((long *v, long offset, long size));
+-extern long na_bfffo PP((long *v, long offset, long size));
+-extern long na_bfffz PP((long *v, long offset, long size));
+-
+-extern long na_bfcount PP((long *v, long offset, long size));
+-extern long na_setcard PP((long *s));
+-extern long na_setlast PP((long *s));
+-extern long na_setnext PP((long *s, long offset));
+-
+-extern long na_setnextnot PP((long *s, long offset));
+-extern long P_imax PP((long a, long b));
+-extern long P_imin PP((long a, long b));
+-extern long P_isgn PP((long a));
++extern int32_t na_memavail PV();
++extern int32_t na_and PP((int32_t x, int32_t y));
++extern int32_t na_bic PP((int32_t x, int32_t y));
++extern int32_t na_or PP((int32_t x, int32_t y));
++extern int32_t na_xor PP((int32_t x, int32_t y));
++extern int32_t na_not PP((int32_t x));
++extern boolean na_mask PP((int32_t x, int32_t y));
++extern boolean na_test PP((int32_t n, int32_t x));
++extern Void na_set PP((int32_t n, int32_t *x));
++extern Void na_clear PP((int32_t n, int32_t *x));
++extern int32_t na_log2 PP((int32_t n));
++extern int32_t na_po2 PP((int32_t n));
++extern int32_t na_lobits PP((int32_t n));
++extern int32_t na_hibits PP((int32_t n));
++extern int32_t na_asl PP((int32_t n, int32_t x));
++extern int32_t na_lsl PP((int32_t n, int32_t x));
++
++extern int32_t na_rol PP((int32_t n, int32_t x));
++extern Void na_bfclr PP((int32_t *v, int32_t offset, int32_t size));
++extern Void na_bfset PP((int32_t *v, int32_t offset, int32_t size));
++extern Void na_bfchg PP((int32_t *v, int32_t offset, int32_t size));
++extern boolean na_bftst PP((int32_t *v, int32_t offset, int32_t size));
++extern Void na_bffill PP((int32_t *v, int32_t offset, int32_t size, int b));
++extern Void na_bfmove PP((int32_t *s, int32_t soff, int32_t *d, int32_t doff, int32_t size));
++extern Void na_bfrev PP((int32_t *v, int32_t offset, int32_t size));
++extern Void na_bfins PP((int32_t *v, int32_t offset, int32_t size, int32_t val));
++extern int32_t na_bfextu PP((int32_t *v, int32_t offset, int32_t size));
++extern int32_t na_bfexts PP((int32_t *v, int32_t offset, int32_t size));
++extern int32_t na_bfffo PP((int32_t *v, int32_t offset, int32_t size));
++extern int32_t na_bfffz PP((int32_t *v, int32_t offset, int32_t size));
++
++extern int32_t na_bfcount PP((int32_t *v, int32_t offset, int32_t size));
++extern int32_t na_setcard PP((int32_t *s));
++extern int32_t na_setlast PP((int32_t *s));
++extern int32_t na_setnext PP((int32_t *s, int32_t offset));
++
++extern int32_t na_setnextnot PP((int32_t *s, int32_t offset));
++extern int32_t P_imax PP((int32_t a, int32_t b));
++extern int32_t P_imin PP((int32_t a, int32_t b));
++extern int32_t P_isgn PP((int32_t a));
+ extern double P_rmax PP((double a, double b));
+ extern double P_rmin PP((double a, double b));
+ 
+-extern long P_rsgn PP((double a));
+-extern long P_imax2 PP((long a, long b));
+-extern long P_imin2 PP((long a, long b));
+-extern long P_imax3 PP((long a, long b, long c));
+-extern long P_imin3 PP((long a, long b, long c));
+-extern long P_imax4 PP((long a, long b, long c, long d));
+-extern long P_imin4 PP((long a, long b, long c, long d));
+-extern Void P_iswap2 PP((long *a, long *b));
+-extern Void P_isort2 PP((long *a, long *b));
+-extern Void P_isort3 PP((long *a, long *b, long *c));
+-extern Void P_isort4 PP((long *a, long *b, long *c, long *d));
+-extern long P_ibound PP((long min, long i, long max));
+-extern boolean P_ibetween PP((long min, long i, long max));
+-extern boolean P_ibetweenm PP((long min, long i, long max, long margin));
+-extern Void P_iamin PP((long *min, long i));
+-extern Void P_iamax PP((long *max, long i));
+-
+-extern Void P_iaminmax PP((long *min, long *max, long i));
+-extern long P_isqrt PP((long n));
+-
+-extern long P_ipow PP((long y, long x));
+-extern long na_add PP((long a, long b));
+-extern long na_sub PP((long a, long b));
+-extern Void na_addc PP((long *a, long b, boolean *c));
+-extern Void na_subc PP((long *a, long b, boolean *c));
+-extern long na_smul PP((long a, long b));
+-extern long na_umul PP((long a, long b));
+-extern na_quadword na_smul64 PP((long a, long b));
+-extern na_quadword na_umul64 PP((long a, long b));
+-extern Void na_udiv64 PP((na_quadword *q, long *r, na_quadword a, long b));
++extern int32_t P_rsgn PP((double a));
++extern int32_t P_imax2 PP((int32_t a, int32_t b));
++extern int32_t P_imin2 PP((int32_t a, int32_t b));
++extern int32_t P_imax3 PP((int32_t a, int32_t b, int32_t c));
++extern int32_t P_imin3 PP((int32_t a, int32_t b, int32_t c));
++extern int32_t P_imax4 PP((int32_t a, int32_t b, int32_t c, int32_t d));
++extern int32_t P_imin4 PP((int32_t a, int32_t b, int32_t c, int32_t d));
++extern Void P_iswap2 PP((int32_t *a, int32_t *b));
++extern Void P_isort2 PP((int32_t *a, int32_t *b));
++extern Void P_isort3 PP((int32_t *a, int32_t *b, int32_t *c));
++extern Void P_isort4 PP((int32_t *a, int32_t *b, int32_t *c, int32_t *d));
++extern int32_t P_ibound PP((int32_t min, int32_t i, int32_t max));
++extern boolean P_ibetween PP((int32_t min, int32_t i, int32_t max));
++extern boolean P_ibetweenm PP((int32_t min, int32_t i, int32_t max, int32_t margin));
++extern Void P_iamin PP((int32_t *min, int32_t i));
++extern Void P_iamax PP((int32_t *max, int32_t i));
++
++extern Void P_iaminmax PP((int32_t *min, int32_t *max, int32_t i));
++extern int32_t P_isqrt PP((int32_t n));
++
++extern int32_t P_ipow PP((int32_t y, int32_t x));
++extern int32_t na_add PP((int32_t a, int32_t b));
++extern int32_t na_sub PP((int32_t a, int32_t b));
++extern Void na_addc PP((int32_t *a, int32_t b, boolean *c));
++extern Void na_subc PP((int32_t *a, int32_t b, boolean *c));
++extern int32_t na_smul PP((int32_t a, int32_t b));
++extern int32_t na_umul PP((int32_t a, int32_t b));
++extern na_quadword na_smul64 PP((int32_t a, int32_t b));
++extern na_quadword na_umul64 PP((int32_t a, int32_t b));
++extern Void na_udiv64 PP((na_quadword *q, int32_t *r, na_quadword a, int32_t b));
+ 
+-extern Void na_sdiv64 PP((na_quadword *q, long *r, na_quadword a, long b));
++extern Void na_sdiv64 PP((na_quadword *q, int32_t *r, na_quadword a, int32_t b));
+ extern Void P_return PV();
+ extern Void P_returnb PP((int b));
+ extern Void P_returnc PP((int c));
+-extern Void P_returni PP((long i));
++extern Void P_returni PP((int32_t i));
+ extern Void P_returnp PP((Anyptr p));
+ 
+ extern Void P_returnr PP((double r));
+ extern Anyptr na_rtosr PP((double r));
+ 
+ extern double na_srtor PP((Anyptr sr));
+-extern double na_stor PP((long s));
+-extern long na_rtos PP((double r));
+-extern long na_sm PP((long a, long b));
+-extern long na_sd PP((long a, long b));
+-extern long na_strunc PP((long s));
+-extern long na_sround PP((long s));
+-extern long na_sint PP((long s));
+-extern long na_sfrac PP((long s));
+-extern long na_itos PP((long s));
+-
+-extern long na_ssqrt PP((long s));
+-extern Void na_compint PP((na_long a, na_long b, long *res));
+-extern Void na_compstr PP((na_long a, na_long b, long *res));
++extern double na_stor PP((int32_t s));
++extern int32_t na_rtos PP((double r));
++extern int32_t na_sm PP((int32_t a, int32_t b));
++extern int32_t na_sd PP((int32_t a, int32_t b));
++extern int32_t na_strunc PP((int32_t s));
++extern int32_t na_sround PP((int32_t s));
++extern int32_t na_sint PP((int32_t s));
++extern int32_t na_sfrac PP((int32_t s));
++extern int32_t na_itos PP((int32_t s));
++
++extern int32_t na_ssqrt PP((int32_t s));
++extern Void na_compint PP((na_long a, na_long b, int32_t *res));
++extern Void na_compstr PP((na_long a, na_long b, int32_t *res));
+ 
+ 
+-extern Void na_qsort PP((na_long *a, long n, _PROCEDURE comp));
++extern Void na_qsort PP((na_long *a, int32_t n, _PROCEDURE comp));
+ extern Void strsafeappend PP((Char *s, Char *s2));
+ extern Void strappendc PP((Char *s, int ch));
+ extern Char *strupper PP((Char *Result, Char *s));
+ extern Char *strlower PP((Char *Result, Char *s));
+ extern Char charupper PP((int ch));
+ extern Char charlower PP((int ch));
+-extern Char *strpart PP((Char *Result, Char *s, long first, long last));
+-extern Char *strlast PP((Char *Result, Char *s, long num));
+-extern Char *strljust PP((Char *Result, Char *s, long wid));
+-extern Char *strrjust PP((Char *Result, Char *s, long wid));
+-extern Char *strcjust PP((Char *Result, Char *s, long wid));
++extern Char *strpart PP((Char *Result, Char *s, int32_t first, int32_t last));
++extern Char *strlast PP((Char *Result, Char *s, int32_t num));
++extern Char *strljust PP((Char *Result, Char *s, int32_t wid));
++extern Char *strrjust PP((Char *Result, Char *s, int32_t wid));
++extern Char *strcjust PP((Char *Result, Char *s, int32_t wid));
+ extern boolean strbegins PP((Char *s1, Char *s2));
+ extern boolean strends PP((Char *s1, Char *s2));
+ extern boolean strcibegins PP((Char *s1, Char *s2));
+ extern boolean strciends PP((Char *s1, Char *s2));
+ extern boolean strequal PP((Char *s1, Char *s2));
+-extern long strsubcmp PP((long n, Char *s1, long i1, Char *s2, long i2));
+-extern boolean strcisubcmp PP((long n, Char *s1, long i1, Char *s2, long i2));
+-extern Void strsubst PP((Char *repl, Char *s, long index, long size));
+-extern Char *strint PP((Char *Result, long i));
+-extern Char *strint2 PP((Char *Result, long i, long w));
++extern int32_t strsubcmp PP((int32_t n, Char *s1, int32_t i1, Char *s2, int32_t i2));
++extern boolean strcisubcmp PP((int32_t n, Char *s1, int32_t i1, Char *s2, int32_t i2));
++extern Void strsubst PP((Char *repl, Char *s, int32_t index, int32_t size));
++extern Char *strint PP((Char *Result, int32_t i));
++extern Char *strint2 PP((Char *Result, int32_t i, int32_t w));
+ extern Char *strreal PP((Char *Result, double r));
+ extern Char *strchar PP((Char *Result, int ch));
+-extern long strreadint PP((Char *s));
++extern int32_t strreadint PP((Char *s));
+ extern double strreadreal PP((Char *s));
+-extern long strposb PP((Char *s1, Char *s2, long i));
+-extern long strposc PP((Char *s1, int ch, long i));
+-extern long strposcset PP((Char *s1, Char *s2, long i));
+-extern long strposbcset PP((Char *s1, Char *s2, long i));
+-extern long strcipos2 PP((Char *s1, Char *s2, long i));
+-extern long strciposb PP((Char *s1, Char *s2, long i));
++extern int32_t strposb PP((Char *s1, Char *s2, int32_t i));
++extern int32_t strposc PP((Char *s1, int ch, int32_t i));
++extern int32_t strposcset PP((Char *s1, Char *s2, int32_t i));
++extern int32_t strposbcset PP((Char *s1, Char *s2, int32_t i));
++extern int32_t strcipos2 PP((Char *s1, Char *s2, int32_t i));
++extern int32_t strciposb PP((Char *s1, Char *s2, int32_t i));
+ extern boolean strcontains PP((Char *s1, Char *s2));
+ extern boolean strsubset PP((Char *s1, Char *s2));
+ extern boolean strcommon PP((Char *s1, Char *s2));
+-extern long strlenv PP((Char *s));
+-extern Char *strhex PP((Char *Result, long i, long w));
+-extern Char *strbinary PP((Char *Result, long i, long w));
++extern int32_t strlenv PP((Char *s));
++extern Char *strhex PP((Char *Result, int32_t i, int32_t w));
++extern Char *strbinary PP((Char *Result, int32_t i, int32_t w));
+ extern Char *strdate PP((Char *Result, Char *opts));
+ extern Void strword PP((Char *s, Char *word));
+ extern Void strword2 PP((Char *s, Char *word));
+@@ -352,10 +352,10 @@
+ extern Void strlist_empty PP((na_strlistrec **base));
+ extern Void strlist_copy PP((na_strlistrec **dest, na_strlistrec *src));
+ 
+-extern Void na_bfand PP((long *s, long soff, long *d, long doff, long size));
+-extern Void na_bfbic PP((long *s, long soff, long *d, long doff, long size));
+-extern Void na_bfor PP((long *s, long soff, long *d, long doff, long size));
+-extern Void na_bfxor PP((long *s, long soff, long *d, long doff, long size));
++extern Void na_bfand PP((int32_t *s, int32_t soff, int32_t *d, int32_t doff, int32_t size));
++extern Void na_bfbic PP((int32_t *s, int32_t soff, int32_t *d, int32_t doff, int32_t size));
++extern Void na_bfor PP((int32_t *s, int32_t soff, int32_t *d, int32_t doff, int32_t size));
++extern Void na_bfxor PP((int32_t *s, int32_t soff, int32_t *d, int32_t doff, int32_t size));
+ extern Char *strnew PP((Char *s));
+ extern na_strlist *strlist_add PP((na_strlist **base, Char *s));
+ extern na_strlist *strlist_append PP((na_strlist **base, Char *s));
+diff -aur diglog32/psys/include/p2c/numex.h diglog64/psys/include/p2c/numex.h
+--- diglog32/psys/include/p2c/numex.h	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/include/p2c/numex.h	2017-02-05 16:00:56.330070000 +0100
+@@ -130,7 +130,7 @@
+ /* p2c: numex.text, line 123: Note:
+  * Field width for ERROR assumes enum ne_errorkind has 9 elements [105] */
+   Char units[6];
+-  long startident[9], ident[9];   /*must not contain #0*/
++  int32_t startident[9], ident[9];   /*must not contain #0*/
+   _PROCEDURE symproc;
+   na_long dummy1, dummy2;
+ } ne_desc;
+diff -aur diglog32/psys/include/p2c/p2c.h diglog64/psys/include/p2c/p2c.h
+--- diglog32/psys/include/p2c/p2c.h	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/include/p2c/p2c.h	2017-02-05 14:48:25.506930000 +0100
+@@ -281,7 +281,7 @@
+ extern Void     free        PP( (Anyptr) );
+ #endif
+ 
+-extern int      _OutMem     PV();
++extern long     _OutMem     PV();
+ extern int      _CaseCheck  PV();
+ extern int      _NilCheck   PV();
+ extern char   *_ShowEscape  PP( (char *, int, int, char *) );
+@@ -308,19 +308,19 @@
+ extern Void     P_readlnpaoc PP( (FILE *, Char *, int) );
+ extern long     P_maxpos    PP( (FILE *) );
+ extern Char    *P_trimname  PP( (Char *, int) );
+-extern long    *P_setunion  PP( (long *, long *, long *) );
+-extern long    *P_setint    PP( (long *, long *, long *) );
+-extern long    *P_setdiff   PP( (long *, long *, long *) );
+-extern long    *P_setxor    PP( (long *, long *, long *) );
+-extern int      P_inset     PP( (unsigned, long *) );
+-extern int      P_setequal  PP( (long *, long *) );
+-extern int      P_subset    PP( (long *, long *) );
+-extern long    *P_addset    PP( (long *, unsigned) );
+-extern long    *P_addsetr   PP( (long *, unsigned, unsigned) );
+-extern long    *P_remset    PP( (long *, unsigned) );
+-extern long    *P_setcpy    PP( (long *, long *) );
+-extern long    *P_expset    PP( (long *, long) );
+-extern long     P_packset   PP( (long *) );
++extern int32_t    *P_setunion  PP( (int32_t *, int32_t *, int32_t *) );
++extern int32_t    *P_setint    PP( (int32_t *, int32_t *, int32_t *) );
++extern int32_t    *P_setdiff   PP( (int32_t *, int32_t *, int32_t *) );
++extern int32_t    *P_setxor    PP( (int32_t *, int32_t *, int32_t *) );
++extern int      P_inset     PP( (unsigned, int32_t *) );
++extern int      P_setequal  PP( (int32_t *, int32_t *) );
++extern int      P_subset    PP( (int32_t *, int32_t *) );
++extern int32_t    *P_addset    PP( (int32_t *, unsigned) );
++extern int32_t    *P_addsetr   PP( (int32_t *, unsigned, unsigned) );
++extern int32_t    *P_remset    PP( (int32_t *, unsigned) );
++extern int32_t    *P_setcpy    PP( (int32_t *, int32_t *) );
++extern int32_t    *P_expset    PP( (int32_t *, int32_t) );
++extern int32_t     P_packset   PP( (int32_t *) );
+ extern int      P_getcmdline PP( (int l, int h, Char *line) );
+ extern Void     TimeStamp   PP( (int *Day, int *Month, int *Year,
+ 				 int *Hour, int *Min, int *Sec) );
+diff -aur diglog32/psys/include/p2c/plot.h diglog64/psys/include/p2c/plot.h
+--- diglog32/psys/include/p2c/plot.h	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/include/p2c/plot.h	2017-02-05 15:32:46.560350000 +0100
+@@ -25,7 +25,7 @@
+ 
+ /*unused*/
+ 
+-typedef long plot_coordarray[100000L];
++typedef int32_t plot_coordarray[100000L];
+ 
+ typedef struct plot_namerec {
+     Char s[9];
+@@ -49,7 +49,7 @@
+ 
+ typedef struct plot_devrec {
+     plot_devaction act;
+-    long x1, y1, x2, y2;
++    int32_t x1, y1, x2, y2;
+     na_quadword q1, q2, q3;
+ } plot_devrec;
+ 
+@@ -57,15 +57,15 @@
+ 
+ vextern plot_fontrec *plot_fontbase;
+ vextern plot_namerec *plot_namebase;
+-vextern long plot_lastchar, plot_bx1, plot_bx2, plot_by1, plot_by2;
+-vextern long plot_screenpen[plot_numscreenpens];
++vextern int32_t plot_lastchar, plot_bx1, plot_bx2, plot_by1, plot_by2;
++vextern int32_t plot_screenpen[plot_numscreenpens];
+ 
+ 
+ 
+-extern Void plot_p1p2 PP((long x1, long y1, long x2, long y2));
+-extern Void plot_init PP((long addr, int sizecode));
+-extern Void plot_initscreen PP((long x1, long y1, long x2, long y2));
+-extern Void plot_warminitscreen PP((long x1, long y1, long x2, long y2));
++extern Void plot_p1p2 PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_init PP((int32_t addr, int sizecode));
++extern Void plot_initscreen PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_warminitscreen PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
+ extern Void plot_initgen PP((Char *fn));
+ extern Void plot_initfile PP((FILE **f, int sizecode, int hascircles));
+ extern Void plot_initps PP((FILE **f));
+@@ -76,85 +76,85 @@
+ extern Void plot_initfile_fast PP((Char *fn));
+ extern Void plot_initps_fast PP((Char *fn));
+ extern Void plot_inituser PP((_PROCEDURE devproc));
+-extern Void plot_window PP((long x1, long y1, long x2, long y2));
+-extern Void plot_nrwindow PP((long x1, long y1, long x2, long y2));
+-extern Void plot_pwindow PP((long x1, long y1, long x2, long y2));
+-extern Void plot_lwindow PP((long x1, long y1, long x2, long y2));
+-extern Void plot_getwindow PP((long *x1, long *y1, long *x2, long *y2));
++extern Void plot_window PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_nrwindow PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_pwindow PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_lwindow PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_getwindow PP((int32_t *x1, int32_t *y1, int32_t *x2, int32_t *y2));
+ extern Void plot_figtitle PP((Char *title));
+ extern Void plot_out PP((Char *s));
+ extern Void plot_headerfile PP((Char * fn, boolean incflag));
+ extern Void plot_initfonts PP((void));
+ 
+-/*no longer supported*/
++/*no int32_ter supported*/
+ extern Void plot_in PP((Char *s));
+ 
+-/*no longer supported*/
++/*no int32_ter supported*/
+ extern Void plot_lift PV();
+ extern Void plot_view PV();
+ extern Void plot_finish PV();
+ extern Void plot_quality PV();
+ extern Void plot_fast PV();
+ extern Void plot_velocity PP((double vel));
+-extern Void plot_color PP((long c));
++extern Void plot_color PP((int32_t c));
+ extern Void plot_prepare PV();
+ extern Void plot_clip PV();
+ extern Void plot_noclip PV();
+-extern long plot_cm PP((double cm));
+-extern Void plot_xform PP((long x, long y, long *xx, long *yy));
+-extern Void plot_rxform PP((double x, double y, long *xx, long *yy));
+-extern Void plot_unxform PP((long xx, long yy, long *x, long *y));
+-extern Void plot_relxform PP((long x, long y, long *xx, long *yy));
+-extern Void plot_rrelxform PP((double x, double y, long *xx, long *yy));
+-extern Void plot_relunxform PP((long xx, long yy, long *x, long *y));
+-extern Void plot_linestyle PP((long num));
++extern int32_t plot_cm PP((double cm));
++extern Void plot_xform PP((int32_t x, int32_t y, int32_t *xx, int32_t *yy));
++extern Void plot_rxform PP((double x, double y, int32_t *xx, int32_t *yy));
++extern Void plot_unxform PP((int32_t xx, int32_t yy, int32_t *x, int32_t *y));
++extern Void plot_relxform PP((int32_t x, int32_t y, int32_t *xx, int32_t *yy));
++extern Void plot_rrelxform PP((double x, double y, int32_t *xx, int32_t *yy));
++extern Void plot_relunxform PP((int32_t xx, int32_t yy, int32_t *x, int32_t *y));
++extern Void plot_linestyle PP((int32_t num));
+ extern Void plot_linewidth PP((double num));
+-extern Void plot_move PP((long x, long y));
+-extern Void plot_draw PP((long x, long y));
++extern Void plot_move PP((int32_t x, int32_t y));
++extern Void plot_draw PP((int32_t x, int32_t y));
+ extern Void plot_rmove PP((double x, double y));
+ extern Void plot_rdraw PP((double x, double y));
+-extern Void plot_moverel PP((long dx, long dy));
+-extern Void plot_drawrel PP((long dx, long dy));
+-extern Void plot_line PP((long x1, long y1, long x2, long y2));
+-extern Void plot_box PP((long x1, long y1, long x2, long y2, long pat));
+-extern Void plot_circle PP((long x1, long y1, long r, long pat));
+-extern Void plot_rellipse PP((long x1, long y1, double rx, double ry,
+-			      long pat));
++extern Void plot_moverel PP((int32_t dx, int32_t dy));
++extern Void plot_drawrel PP((int32_t dx, int32_t dy));
++extern Void plot_line PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2));
++extern Void plot_box PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t pat));
++extern Void plot_circle PP((int32_t x1, int32_t y1, int32_t r, int32_t pat));
++extern Void plot_rellipse PP((int32_t x1, int32_t y1, double rx, double ry,
++			      int32_t pat));
+ extern Void plot_rrellipse PP((double x1, double y1, double rx, double ry,
+-			       long pat));
+-extern Void plot_bezier PP((long x1, long y1, long x2, long y2, long x3,
+-			    long y3, long x4, long y4, long epsilon));
++			       int32_t pat));
++extern Void plot_bezier PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t x3,
++			    int32_t y3, int32_t x4, int32_t y4, int32_t epsilon));
+ extern Void plot_rbezier PP((double x1, double y1, double x2, double y2,
+ 			     double x3, double y3, double x4, double y4,
+-			     long epsilon));
+-extern Void plot_polygon PP((long n, long *x, long *y, long pat));
+-extern Void plot_roundbox PP((long x1, long y1, long x2, long y2, long rx,
+-			      long ry, long pat));
++			     int32_t epsilon));
++extern Void plot_polygon PP((int32_t n, int32_t *x, int32_t *y, int32_t pat));
++extern Void plot_roundbox PP((int32_t x1, int32_t y1, int32_t x2, int32_t y2, int32_t rx,
++			      int32_t ry, int32_t pat));
+ extern Void plot_rroundbox PP((double x1, double y1, double x2, double y2,
+-			       double rx, double ry, long pat));
++			       double rx, double ry, int32_t pat));
+ extern Void plot_readfont PP((Char *fn));
+-extern Void plot_readfontset PP((Char *fn, long *which));
+-extern Void plot_morefontset PP((Char *fn, long *which));
++extern Void plot_readfontset PP((Char *fn, int32_t *which));
++extern Void plot_morefontset PP((Char *fn, int32_t *which));
+ extern Void plot_initfonts PV();
+ extern Void plot_fontfile PP((Char *fn));
+-extern Void plot_loadfonts PP((long *which));
++extern Void plot_loadfonts PP((int32_t *which));
+ extern Void plot_ctrlchars PP((Char *pref, Char *chrs));
+-extern Void plot_selfont PP((long num));
+-extern long plot_height PV();
+-extern Void plot_charsize PP((long num, long den, long scale));
+-extern Void plot_charscale PP((long scale));
++extern Void plot_selfont PP((int32_t num));
++extern int32_t plot_height PV();
++extern Void plot_charsize PP((int32_t num, int32_t den, int32_t scale));
++extern Void plot_charscale PP((int32_t scale));
+ extern Void plot_charorient PP((double theta, int mirrorx));
+-extern Void plot_charaspect PP((long horiz, long vert, long den));
+-extern long plot_charnum PP((int ch));
+-extern long plot_charname PP((Char *s));
+-extern Void plot_ssoffset PP((long sub, long sup, long den));
+-extern Void plot_char PP((long x, long y, long num));
+-extern Void plot_string PP((long x, long y, Char *s));
+-extern Void plot_rightstring PP((long x, long y, Char *s));
+-extern Void plot_centerstring PP((long x, long y, Char *s));
+-extern Void plot_genstring PP((long x, long y, Char *orient, Char *s));
++extern Void plot_charaspect PP((int32_t horiz, int32_t vert, int32_t den));
++extern int32_t plot_charnum PP((int ch));
++extern int32_t plot_charname PP((Char *s));
++extern Void plot_ssoffset PP((int32_t sub, int32_t sup, int32_t den));
++extern Void plot_char PP((int32_t x, int32_t y, int32_t num));
++extern Void plot_string PP((int32_t x, int32_t y, Char *s));
++extern Void plot_rightstring PP((int32_t x, int32_t y, Char *s));
++extern Void plot_centerstring PP((int32_t x, int32_t y, Char *s));
++extern Void plot_genstring PP((int32_t x, int32_t y, Char *orient, Char *s));
+ extern Void plot_stringrel PP((Char *s));
+-extern long plot_stringwidth PP((Char *s));
++extern int32_t plot_stringwidth PP((Char *s));
+ 
+ 
+ 
+diff -aur diglog32/psys/src/Makefile diglog64/psys/src/Makefile
+--- diglog32/psys/src/Makefile	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/Makefile	2017-02-05 16:01:35.529907000 +0100
+@@ -192,7 +192,7 @@
+ ##   -m68040              : for 68040 and 68060
+ ##
+ 
+-CHIPMUNKFLAGS = 
++CHIPMUNKFLAGS = -DBSD -Dlinux -DF_OK=0 
+ 
+ CFLAGS = $(CHIPMUNKFLAGS) $(FONTS) -I$(LOCINC) -I$(XINCLUDEDIR) -DCHIPLIB=\"`$(CD) $(LIBDIR); pwd`\"
+ 
+diff -aur diglog32/psys/src/mamplot.c diglog64/psys/src/mamplot.c
+--- diglog32/psys/src/mamplot.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/mamplot.c	2017-02-05 15:28:15.057455000 +0100
+@@ -95,7 +95,7 @@
+ } plottype;
+ 
+ typedef struct _REC_device_limits {
+-  long plotmin, plotmax, titlemax, titlemin;
++  int32_t plotmin, plotmax, titlemax, titlemin;
+ } _REC_device_limits;
+ 
+ typedef _REC_device_limits device_limits[2];
+diff -aur diglog32/psys/src/misc.c diglog64/psys/src/misc.c
+--- diglog32/psys/src/misc.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/misc.c	2017-02-05 15:24:09.980733000 +0100
+@@ -244,7 +244,7 @@
+ {
+ Char *name;
+ Char *ret = NULL;
+-int len = 0;
++size_t len = 0;
+ struct passwd *pw;
+ 
+   if (*s == '~') {
+diff -aur diglog32/psys/src/mylib.c diglog64/psys/src/mylib.c
+--- diglog32/psys/src/mylib.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/mylib.c	2017-02-05 16:29:22.883621000 +0100
+@@ -426,6 +426,8 @@
+   0, 0,                              /*  width_inc, height_inc  */
+   { 0, 0 },                          /*  min_aspect             */
+   { 0, 0 },                          /*  max_aspect             */
++  512, 390,                          /* base_width, base_height */
++  0,                                 /* win_gravity             */
+ };
+ 
+ static char *progname = "mylib";
+@@ -2772,15 +2774,15 @@
+   int oc1 = 0, oc2 = 0;
+   int val;
+   static int table[9][9] = {
+-    0, 0, 0,  0, 1, 2,  0, 4, 4,
+-    0, 0, 0,  4, 1, 5,  4, 1, 5,
+-    0, 0, 0,  2, 1, 0,  5, 5, 0,
+-    0, 2, 2,  0, 1, 1,  0, 4, 4,
+-    1, 1, 1,  1, 1, 1,  1, 1, 1,
+-    2, 2, 0,  1, 1, 0,  5, 5, 0,
+-    0, 4, 4,  0, 1, 4,  0, 0, 0,
+-    4, 1, 5,  4, 1, 5,  0, 0, 0,
+-    5, 5, 0,  5, 1, 0,  0, 0, 0
++      { 0, 0, 0,  0, 1, 2,  0, 4, 4},
++      { 0, 0, 0,  4, 1, 5,  4, 1, 5},
++      { 0, 0, 0,  2, 1, 0,  5, 5, 0},
++      { 0, 2, 2,  0, 1, 1,  0, 4, 4},
++      { 1, 1, 1,  1, 1, 1,  1, 1, 1},
++      { 2, 2, 0,  1, 1, 0,  5, 5, 0},
++      { 0, 4, 4,  0, 1, 4,  0, 0, 0},
++      { 4, 1, 5,  4, 1, 5,  0, 0, 0},
++      { 5, 5, 0,  5, 1, 0,  0, 0, 0}
+   };
+ 
+   if (x1 > m_clip_x2)
+diff -aur diglog32/psys/src/newasmlib.c diglog64/psys/src/newasmlib.c
+--- diglog32/psys/src/newasmlib.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/newasmlib.c	2017-02-05 16:18:13.493938000 +0100
+@@ -28,8 +28,8 @@
+ 
+ /* The following would benefit from assembly language if possible */
+ 
+-#define ROL_L(v,n)    (((v) << n) | ((unsigned long)(v) >> (32-(n))))
+-#define ROR_L(v,n)    (((unsigned long)(v) >> n) | ((v) << (32-(n))))
++#define ROL_L(v,n)    (((v) << n) | ((uint32_t)(v) >> (32-(n))))
++#define ROR_L(v,n)    (((uint32_t)(v) >> n) | ((v) << (32-(n))))
+ 
+ #define VROL_L(v,n)   ((v) = ROL_L(v,n))
+ #define VROR_L(v,n)   ((v) = ROR_L(v,n))
+@@ -48,7 +48,7 @@
+ /* Fill a block of memory with a repeating 4-byte pattern */
+ 
+ Void na_fill(d, w, n)
+-register long *d, w, n;
++register int32_t *d, w, n;
+ {
+     if (n <= 0)
+         return;
+@@ -59,7 +59,7 @@
+     if ((long)d & 1) {
+         VROL_L(w, 8);
+         *((uchar *)d) = w;
+-        d = (long *)(1 + (long)d);    /* yuck! */
++        d = (int32_t *)(1 + (long)d);    /* yuck! */
+         if (--n <= 0)
+             return;
+     }
+@@ -70,7 +70,7 @@
+     if ((long)d & 2) {
+         VROL_L(w, 16);
+         *((short *)d) = w;
+-        d = (long *)(2 + (long)d);
++        d = (int32_t *)(2 + (long)d);
+         n -= 2;
+         if (n <= 0)
+             return;
+@@ -83,7 +83,7 @@
+     if (n >= -2) {
+         VROL_L(w, 16);
+         *((short *)d) = w;
+-        d = (long *)(2 + (long)d);
++        d = (int32_t *)(2 + (long)d);
+         n -= 2;
+     }
+     if (n >= -3)
+@@ -96,8 +96,8 @@
+ /* Fill a block of memory with a word pattern */
+ 
+ Void na_fillword(d, w, n)
+-long *d;
+-long w, n;
++int32_t *d;
++int32_t w, n;
+ {
+     na_fill(d, ((unsigned short)w) | (w << 16), n * 2);
+ }
+@@ -108,8 +108,8 @@
+ /* Exchange two blocks of memory */
+ 
+ Void na_exch(s, d, size)
+-long *s, *d;
+-register long size;
++int32_t *s, *d;
++register int32_t size;
+ {
+     switch (size) {
+ 
+@@ -136,7 +136,7 @@
+ 
+         case 4:
+             if (!(((long)s | (long)d) & 3)) {
+-                register long *p1 = s, *p2 = d;
++                register int32_t *p1 = s, *p2 = d;
+                 size = *p1;
+                 *p1 = *p2;
+                 *p2 = size;
+@@ -158,9 +158,9 @@
+ 
+ /* Scan for a byte equal to the target */
+ 
+-long na_scaneq(s, what, size)
+-long *s, what;
+-register long size;
++int32_t na_scaneq(s, what, size)
++int32_t *s, what;
++register int32_t size;
+ {
+     register uchar *cp = (uchar *)s;
+     register uchar ch = what;
+@@ -178,9 +178,9 @@
+ 
+ /* Scan for a byte unequal to the target */
+ 
+-long na_scanne(s, what, size)
+-long *s, what;
+-register long size;
++int32_t na_scanne(s, what, size)
++int32_t *s, what;
++register int32_t size;
+ {
+     register uchar *cp = (uchar *)s;
+     register uchar ch = what;
+@@ -200,7 +200,7 @@
+ 
+ Void na_alloc(p, s)
+ Anyptr *p;
+-long s;
++int32_t s;
+ {
+     *p = malloc(s);
+ }
+@@ -209,7 +209,7 @@
+ 
+ Void na_outeralloc(p, s, parframe)
+ Anyptr *p;
+-long s, parframe;
++int32_t s, parframe;
+ {
+     *p = malloc(s);
+ }
+@@ -229,20 +229,20 @@
+ /* Bit operations */
+ 
+ boolean na_test(n, x)
+-register long n;
+-long x;
++register int32_t n;
++int32_t x;
+ {
+-    if ((unsigned long)n > 31)
++    if ((uint32_t)n > 31)
+         return 0;
+     return ((x & (1<<n)) != 0);
+ }
+ 
+ 
+ Void na_set(n, x)
+-register long n;
+-long *x;
++register int32_t n;
++int32_t *x;
+ {
+-    if ((unsigned long)n > 31)
++    if ((uint32_t)n > 31)
+         return;
+     *x |= (1<<n);
+ }
+@@ -250,30 +250,30 @@
+ 
+ 
+ Void na_clear(n, x)
+-register long n;
+-long *x;
++register int32_t n;
++int32_t *x;
+ {
+-    if ((unsigned long)n > 31)
++    if ((uint32_t)n > 31)
+         return;
+     *x &= ~(1<<n);
+ }
+ 
+ 
+ 
+-long na_po2(n)
+-register long n;
++int32_t na_po2(n)
++register int32_t n;
+ {
+-    if ((unsigned long)n > 31)
++    if ((uint32_t)n > 31)
+         return 0;
+     return 1<<n;
+ }
+ 
+ 
+ 
+-long na_log2(n)
+-long n;
++int32_t na_log2(n)
++int32_t n;
+ {
+-    register unsigned long un = n;
++    register uint32_t un = n;
+     register int v;
+ 
+     for (v = -1; un != 0; v++)
+@@ -283,8 +283,8 @@
+ 
+ 
+ 
+-long na_lobits(n)
+-register long n;
++int32_t na_lobits(n)
++register int32_t n;
+ {
+     if (n <= 0)
+         return 0;
+@@ -295,20 +295,20 @@
+ 
+ 
+ 
+-long na_hibits(n)
+-register long n;
++int32_t na_hibits(n)
++register int32_t n;
+ {
+     if (n <= 0)
+         return 0;
+     if (n >= 32)
+         return -1;
+-    return ~(((unsigned long)-1) >> n);
++    return ~(((uint32_t)-1) >> n);
+ }
+ 
+ 
+ 
+-long na_asl(n, x)
+-register long n, x;
++int32_t na_asl(n, x)
++register int32_t n, x;
+ {
+     if (n > 0) {
+         if (n > 31)
+@@ -325,8 +325,8 @@
+ 
+ 
+ 
+-long na_lsl(n, x)
+-register long n, x;
++int32_t na_lsl(n, x)
++register int32_t n, x;
+ {
+     if (n > 0) {
+         if (n > 31)
+@@ -335,15 +335,15 @@
+     } else if (n < 0) {
+         if (n < -31)
+             return 0;
+-        return (unsigned long)x >> (-n);
++        return (uint32_t)x >> (-n);
+     }
+     return x;
+ }
+ 
+ 
+ 
+-long na_rol(n, x)
+-register long n, x;
++int32_t na_rol(n, x)
++register int32_t n, x;
+ {
+     return ROL_L(x, n & 31);
+ }
+@@ -353,15 +353,15 @@
+ 
+ /* Bit fields */
+ 
+-/* Bits are numbered with the MSB the longword at *v at zero. */
++/* Bits are numbered with the MSB the int32_tword at *v at zero. */
+ /* The bit field stretches from offset to (offset+size-1). */
+ /* This is similar to the MC68020's bit field numbering scheme. */
+-/* Size and offset may be any long integer values. */
++/* Size and offset may be any int32_t integer values. */
+ 
+ #define BFCHECK(v,offset) {                 \
+     if (((long)(v)) & 3) {                  \
+         (offset) += 8 * (((long)(v)) & 3);  \
+-        (v) = (long *)(((long)(v)) & ~3);   \
++        (v) = (int32_t *)(((long)(v)) & ~3);   \
+     }                                       \
+     v += ASR_L(offset, 5);                  \
+     offset &= 31;                           \
+@@ -370,7 +370,7 @@
+ 
+ /* Clear a bit-field to zeros */
+ Void na_bfclr(v, offset, size)
+-register long *v, offset, size;
++register int32_t *v, offset, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(v, offset);
+@@ -393,7 +393,7 @@
+ 
+ /* Set a bit-field to ones */
+ Void na_bfset(v, offset, size)
+-register long *v, offset, size;
++register int32_t *v, offset, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(v, offset);
+@@ -416,7 +416,7 @@
+ 
+ /* Toggle the bits in a bit-field */
+ Void na_bfchg(v, offset, size)
+-register long *v, offset, size;
++register int32_t *v, offset, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(v, offset);
+@@ -439,7 +439,7 @@
+ 
+ /* Test if a bit-field contains any ones */
+ boolean na_bftst(v, offset, size)
+-register long *v, offset, size;
++register int32_t *v, offset, size;
+ {
+     if (size <= 0) return 0;
+     BFCHECK(v, offset);
+@@ -461,7 +461,7 @@
+ 
+ /* Set or clear a bit-field according to a boolean value */
+ Void na_bffill(v, offset, size, b)
+-long *v, offset, size;
++int32_t *v, offset, size;
+ boolean b;
+ {
+     if (b)
+@@ -474,7 +474,7 @@
+ 
+ /* Move a bit-field into another bit-field */
+ Void na_bfmove(s, soff, d, doff, size)
+-register long *s, soff, *d, doff, size;
++register int32_t *s, soff, *d, doff, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(d, doff);
+@@ -504,7 +504,7 @@
+ 
+ /* Bitwise AND two bit fields */
+ Void na_bfand(s, soff, d, doff, size)
+-register long *s, soff, *d, doff, size;
++register int32_t *s, soff, *d, doff, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(d, doff);
+@@ -532,7 +532,7 @@
+ 
+ /* Bitwise AND-NOT two bit fields */
+ Void na_bfbic(s, soff, d, doff, size)
+-register long *s, soff, *d, doff, size;
++register int32_t *s, soff, *d, doff, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(d, doff);
+@@ -558,7 +558,7 @@
+ 
+ /* Bitwise OR two bit fields */
+ Void na_bfor(s, soff, d, doff, size)
+-register long *s, soff, *d, doff, size;
++register int32_t *s, soff, *d, doff, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(d, doff);
+@@ -584,7 +584,7 @@
+ 
+ /* Bitwise XOR two bit fields */
+ Void na_bfxor(s, soff, d, doff, size)
+-register long *s, soff, *d, doff, size;
++register int32_t *s, soff, *d, doff, size;
+ {
+     if (size <= 0) return;
+     BFCHECK(d, doff);
+@@ -610,11 +610,11 @@
+ 
+ /* Reverse a bit field LSB-for-MSB */
+ Void na_bfrev(v, offset, size)
+-register long *v, offset, size;
++register int32_t *v, offset, size;
+ {
+     if (size <= 1) return;
+     if (size <= 32) {
+-        register long val, val2 = 0;
++        register int32_t val, val2 = 0;
+         val = na_bfextu(v, offset, size);
+         while (--size >= 0) {
+             val2 <<= 1;
+@@ -625,7 +625,7 @@
+         return;
+     }
+     BFCHECK(v, offset);
+-    {   register long *v2, mask1, mask2;
++    {   register int32_t *v2, mask1, mask2;
+         mask1 = 1 << (31-offset);
+         offset += size - 1;
+         v2 = v + ASR_L(offset, 5);
+@@ -661,9 +661,9 @@
+ 
+ /* Insert a value (up to 32 bits) into a bit-field */
+ Void na_bfins(v, offset, size, val)
+-register long *v, offset, size, val;
++register int32_t *v, offset, size, val;
+ {
+-    register long mask;
++    register int32_t mask;
+ 
+     if (size <= 0) return;
+     BFCHECK(v, offset);
+@@ -678,7 +678,7 @@
+     mask = (1 << offset) - 1;
+     *v &= ~mask;
+     size -= offset;
+-    *v++ |= ((unsigned long)val >> (size)) & mask;
++    *v++ |= ((uint32_t)val >> (size)) & mask;
+     mask = (-1) << (32-size);
+     *v &= ~mask;
+     *v |= val << (32-size);
+@@ -687,10 +687,10 @@
+ 
+ 
+ /* Extract an unsigned value (up to 32 bits) from a bit-field */
+-long na_bfextu(v, offset, size)
+-register long *v, offset, size;
++int32_t na_bfextu(v, offset, size)
++register int32_t *v, offset, size;
+ {
+-    register long val;
++    register int32_t val;
+ 
+     if (size <= 0) return 0;
+     BFCHECK(v, offset);
+@@ -700,16 +700,16 @@
+                ((1 << size) - 1);
+     size -= offset;
+     val = ((*v++) & ((1 << offset) - 1)) << size;
+-    return val | ((unsigned long)(*v)) >> (32-size);
++    return val | ((uint32_t)(*v)) >> (32-size);
+ }
+ 
+ 
+ 
+ /* Extract a signed value (up to 32 bits) from a bit-field */
+-long na_bfexts(v, offset, size)
+-register long *v, offset, size;
++int32_t na_bfexts(v, offset, size)
++register int32_t *v, offset, size;
+ {
+-    register long val;
++    register int32_t val;
+ 
+     if (size <= 0) return 0;
+     BFCHECK(v, offset);
+@@ -717,16 +717,16 @@
+         return ASR_L((*v) << offset, 32-size);
+     val = (*v++) << offset;
+     val = ASR_L(val, 32-size);
+-    return val | ((unsigned long)(*v)) >> (64-size-offset);
++    return val | ((uint32_t)(*v)) >> (64-size-offset);
+ }
+ 
+ 
+ 
+ /* Find first (left-most) 'one' bit in a bit-field */
+-long na_bfffo(v, offset, size)
+-register long *v, offset, size;
++int32_t na_bfffo(v, offset, size)
++register int32_t *v, offset, size;
+ {
+-    register long val;
++    register int32_t val;
+ 
+     if (size <= 0) return offset;
+     while (size >= 32) {
+@@ -760,16 +760,16 @@
+ 
+ 
+ /* Find first (left-most) 'zero' bit in a bit-field */
+-long na_bfffz(v, offset, size)
+-register long *v, offset, size;
++int32_t na_bfffz(v, offset, size)
++register int32_t *v, offset, size;
+ {
+-    register long val;
++    register int32_t val;
+ 
+     if (size <= 0) return offset;
+     while (size >= 32) {
+         val = na_bfextu(v, offset, 32);
+         if (~val) {
+-            if ((unsigned long)val >= 0xffff0000) {
++            if ((uint32_t)val >= 0xffff0000) {
+                 offset += 16;
+                 val <<= 16;
+             }
+@@ -797,10 +797,10 @@
+ 
+ 
+ /* Count the number of 'one' bits in a bit-field */
+-long na_bfcount(v, offset, size)
+-register long *v, offset, size;
++int32_t na_bfcount(v, offset, size)
++register int32_t *v, offset, size;
+ {
+-    register long val, count = 0;
++    register int32_t val, count = 0;
+ 
+     if (size <= 0) return 0;
+     while (size >= 32) {
+@@ -829,8 +829,8 @@
+ /* Operations on Pascal sets */
+ 
+ /* Cardinality of a set */
+-long na_setcard(s)
+-long *s;
++int32_t na_setcard(s)
++int32_t *s;
+ {
+     return na_bfcount(s+1, 0, *s << 5);
+ }
+@@ -838,10 +838,10 @@
+ 
+ 
+ /* Highest ordinal value in set */
+-long na_setlast(s)
+-long *s;
++int32_t na_setlast(s)
++int32_t *s;
+ {
+-    register long count, val;
++    register int32_t count, val;
+ 
+     if (!*s)
+         return -1;
+@@ -862,10 +862,10 @@
+ 
+ 
+ /* Next value in set after a certain value */
+-long na_setnext(s, offset)
+-long *s, offset;
++int32_t na_setnext(s, offset)
++int32_t *s, offset;
+ {
+-    long val;
++    int32_t val;
+ 
+     if (offset < 0) offset = 0;
+     val = na_bfffo(s+1, offset, (*s << 5) - offset);
+@@ -878,10 +878,10 @@
+ 
+ 
+ /* Next value not in set after a certain value */
+-long na_setnextnot(s, offset)
+-long *s, offset;
++int32_t na_setnextnot(s, offset)
++int32_t *s, offset;
+ {
+-    long val;
++    int32_t val;
+ 
+     if (offset < 0) return offset;
+     val = na_bfffz(s+1, offset, (*s << 5) - offset);
+@@ -918,7 +918,7 @@
+ 
+ 
+ 
+-long P_rsgn(a)
++int32_t P_rsgn(a)
+ double a;
+ {
+     if (a < 0)
+@@ -931,8 +931,8 @@
+ 
+ 
+ 
+-long P_isgn(a)
+-register long a;
++int32_t P_isgn(a)
++register int32_t a;
+ {
+     if (a < 0)
+         return -1;
+@@ -944,8 +944,8 @@
+ 
+ 
+ 
+-long P_imin2(a, b)
+-register long a, b;
++int32_t P_imin2(a, b)
++register int32_t a, b;
+ {
+     if (a < b)
+         return a;
+@@ -955,8 +955,8 @@
+ 
+ 
+ 
+-long P_imax2(a, b)
+-register long a, b;
++int32_t P_imax2(a, b)
++register int32_t a, b;
+ {
+     if (a > b)
+         return a;
+@@ -966,8 +966,8 @@
+ 
+ 
+ 
+-long P_imin3(a, b, c)
+-register long a, b, c;
++int32_t P_imin3(a, b, c)
++register int32_t a, b, c;
+ {
+     if (a < b)
+         return (a < c) ? c : a;
+@@ -977,8 +977,8 @@
+ 
+ 
+ 
+-long P_imax3(a, b, c)
+-register long a, b, c;
++int32_t P_imax3(a, b, c)
++register int32_t a, b, c;
+ {
+     if (a > b)
+         return (a > c) ? c : a;
+@@ -988,8 +988,8 @@
+ 
+ 
+ 
+-long P_imin4(a, b, c, d)
+-register long a, b, c, d;
++int32_t P_imin4(a, b, c, d)
++register int32_t a, b, c, d;
+ {
+     if (a < b)
+         if (a < c)
+@@ -1005,8 +1005,8 @@
+ 
+ 
+ 
+-long P_imax4(a, b, c, d)
+-register long a, b, c, d;
++int32_t P_imax4(a, b, c, d)
++register int32_t a, b, c, d;
+ {
+     if (a > b)
+         if (a > c)
+@@ -1023,9 +1023,9 @@
+ 
+ 
+ Void P_iswap2(a, b)
+-register long *a, *b;
++register int32_t *a, *b;
+ {
+-    register long t;
++    register int32_t t;
+ 
+     t = *a;
+     *a = *b;
+@@ -1035,9 +1035,9 @@
+ 
+ 
+ Void P_isort2(a, b)
+-register long *a, *b;
++register int32_t *a, *b;
+ {
+-    register long t;
++    register int32_t t;
+ 
+     t = *a;
+     if (t > *b) {
+@@ -1049,9 +1049,9 @@
+ 
+ 
+ Void P_isort3(a, b, c)
+-register long *a, *b, *c;
++register int32_t *a, *b, *c;
+ {
+-    register long t;
++    register int32_t t;
+ 
+     t = *a;
+     if (t < *b) {                   /* a < b */
+@@ -1082,9 +1082,9 @@
+ 
+ 
+ Void P_isort4(a, b, c, d)
+-register long *a, *b, *c, *d;
++register int32_t *a, *b, *c, *d;
+ {
+-    register long t;
++    register int32_t t;
+ 
+     P_isort3(a, b, c);
+     t = *d;
+@@ -1105,8 +1105,8 @@
+ 
+ 
+ 
+-long P_ibound(min, i, max)
+-register long min, i, max;
++int32_t P_ibound(min, i, max)
++register int32_t min, i, max;
+ {
+     if (max > min)
+         return (i < min) ? min : (i > max) ? max : i;
+@@ -1117,7 +1117,7 @@
+ 
+ 
+ boolean P_ibetween(min, i, max)
+-register long min, i, max;
++register int32_t min, i, max;
+ {
+     if (min <= i)
+         return (i <= max);
+@@ -1128,7 +1128,7 @@
+ 
+ 
+ boolean P_ibetweenm(min, i, max, margin)
+-register long min, i, max, margin;
++register int32_t min, i, max, margin;
+ {
+     return ((min-margin <= i) && (i <= max+margin)) ||
+            ((max-margin <= i) && (i <= min+margin));
+@@ -1137,7 +1137,7 @@
+ 
+ 
+ Void P_iamin(min, i)
+-register long *min, i;
++register int32_t *min, i;
+ {
+     if (i < *min)
+         *min = i;
+@@ -1146,7 +1146,7 @@
+ 
+ 
+ Void P_iamax(max, i)
+-register long *max, i;
++register int32_t *max, i;
+ {
+     if (i > *max)
+         *max = i;
+@@ -1155,7 +1155,7 @@
+ 
+ 
+ Void P_iaminmax(min, max, i)
+-register long *min, *max, i;
++register int32_t *min, *max, i;
+ {
+     if (i < *min)
+         *min = i;
+@@ -1165,18 +1165,18 @@
+ 
+ 
+ 
+-long P_isqrt(n)
+-long n;
++int32_t P_isqrt(n)
++int32_t n;
+ {
+-    return (long)sqrt((double)n);      /* ought to use a better algorithm for this! */
++    return (int32_t)sqrt((double)n);      /* ought to use a better algorithm for this! */
+ }
+ 
+ 
+ 
+-long P_ipow(y, x)
+-register long y, x;
++int32_t P_ipow(y, x)
++register int32_t y, x;
+ {
+-    register long n;
++    register int32_t n;
+ 
+     switch (y) {
+ 
+@@ -1224,20 +1224,20 @@
+ 
+ 
+ Void na_addc(a, b, c)
+-long *a, b;
++int32_t *a, b;
+ boolean *c;
+ {
+     *a += b + *c;
+-    *c = ((unsigned long)*a < (unsigned long)b);
++    *c = ((uint32_t)*a < (uint32_t)b);
+ }
+ 
+ 
+ 
+ Void na_subc(a, b, c)
+-long *a, b;
++int32_t *a, b;
+ boolean *c;
+ {
+-    boolean newc = ((unsigned long)*a < (unsigned long)b);
++    boolean newc = ((uint32_t)*a < (uint32_t)b);
+ 
+     *a -= b - *c;
+     *c = newc;
+@@ -1245,24 +1245,24 @@
+ 
+ 
+ 
+-long na_smul(a, b)
+-long a, b;
++int32_t na_smul(a, b)
++int32_t a, b;
+ {
+-    return (unsigned long)a * (unsigned long)b;
++    return (uint32_t)a * (uint32_t)b;
+ }
+ 
+ 
+ 
+-long na_umul(a, b)
+-long a, b;
++int32_t na_umul(a, b)
++int32_t a, b;
+ {
+-    return (unsigned long)a * (unsigned long)b;
++    return (uint32_t)a * (uint32_t)b;
+ }
+ 
+ 
+ 
+ na_quadword na_smul64(a, b)
+-long a, b;
++int32_t a, b;
+ {
+     na_quadword q;
+ 
+@@ -1285,13 +1285,13 @@
+ 
+ 
+ na_quadword na_umul64(a, b)
+-long a, b;
++int32_t a, b;
+ {
+     na_quadword q;
+     unsigned short ah = a >> 16, al = a;
+     unsigned short bh = b >> 16, bl = b;
+     boolean c;
+-    unsigned long t;
++    uint32_t t;
+ 
+     q.U1.i1 = al * bl;
+     t = bh * al;
+@@ -1314,20 +1314,20 @@
+ static Anyptr userqsortlink;
+ 
+ static int qsortfunc(a, b)
+-long *a, *b;
++int32_t *a, *b;
+ {
+     return (*userqsortfunc)(*a, *b);
+ }
+ 
+ static int qsortfunc2(a, b)
+-long *a, *b;
++int32_t *a, *b;
+ {
+     return (*userqsortfunc)(*a, *b, userqsortlink);
+ }
+ 
+ Void na_qsort(a, n, comp)
+ na_long *a;
+-long n;
++int32_t n;
+ _PROCEDURE comp;
+ {
+     if (comp.link) 
+@@ -1398,7 +1398,7 @@
+ 
+ Char *strpart(res, s, first, last)
+ Char *res, *s;
+-long first, last;
++int32_t first, last;
+ {
+     return strsub(res, s, first, last-first+1);
+ }
+@@ -1407,7 +1407,7 @@
+ 
+ Char *strlast(res, s, num)
+ Char *res, *s;
+-long num;
++int32_t num;
+ {
+     register Char *cp;
+ 
+@@ -1422,7 +1422,7 @@
+ 
+ Char *strcjust(res, s, wid)
+ register Char *res, *s;
+-register long wid;
++register int32_t wid;
+ {
+     register int len = strlen(s), wid2;
+     register char *cp = res;
+@@ -1509,9 +1509,9 @@
+ 
+ 
+ 
+-long strsubcmp(n, s1, i1, s2, i2)
++int32_t strsubcmp(n, s1, i1, s2, i2)
+ register Char *s1, *s2;
+-register long n, i1, i2;
++register int32_t n, i1, i2;
+ {
+     if (i1 <= 0) s1 = (Char *)"";
+     if (i2 <= 0) s2 = (Char *)"";
+@@ -1534,7 +1534,7 @@
+ 
+ boolean strcisubcmp(n, s1, i1, s2, i2)
+ register Char *s1, *s2;
+-register long n, i1, i2;
++register int32_t n, i1, i2;
+ {
+     if (i1 <= 0) s1 = (Char *)"";
+     if (i2 <= 0) s2 = (Char *)"";
+@@ -1561,7 +1561,7 @@
+ 
+ Void strsubst(repl, s, index, size)
+ register Char *repl, *s;
+-register long index, size;
++register int32_t index, size;
+ {
+     register int len = strlen(repl);
+ 
+@@ -1582,7 +1582,7 @@
+ 
+ Char *strint2(res, i, w)
+ Char *res;
+-long i, w;
++int32_t i, w;
+ {
+     if (w < 0)
+         sprintf(res, "%0*ld", (int)(-w), i);
+@@ -1593,9 +1593,9 @@
+ 
+ 
+ 
+-long strposb(s1, s2, i)
++int32_t strposb(s1, s2, i)
+ register Char *s1, *s2;
+-register long i;
++register int32_t i;
+ {
+     register int len1, len2;
+ 
+@@ -1612,9 +1612,9 @@
+ 
+ 
+ 
+-long strposc(s1, ch, i)
++int32_t strposc(s1, ch, i)
+ register Char *s1, ch;
+-register long i;
++register int32_t i;
+ {
+     register Char *cp = s1;
+ 
+@@ -1631,9 +1631,9 @@
+ 
+ 
+ 
+-long strcipos2(s1, s2, i)
++int32_t strcipos2(s1, s2, i)
+ register Char *s1, *s2;
+-register long i;
++register int32_t i;
+ {
+     register Char *cp = s1;
+     register int len = strlen(s2);
+@@ -1651,9 +1651,9 @@
+ 
+ 
+ 
+-long strciposb(s1, s2, i)
++int32_t strciposb(s1, s2, i)
+ register Char *s1, *s2;
+-register long i;
++register int32_t i;
+ {
+     register int len;
+ 
+@@ -1669,9 +1669,9 @@
+ 
+ 
+ 
+-long strposcset(s1, s2, i)
++int32_t strposcset(s1, s2, i)
+ register Char *s1, *s2;
+-register long i;
++register int32_t i;
+ {
+     register Char *cp = s1, *cp2;
+     register Char ch, ch2;
+@@ -1691,9 +1691,9 @@
+ 
+ 
+ 
+-long strposbcset(s1, s2, i)
++int32_t strposbcset(s1, s2, i)
+ register Char *s1, *s2;
+-register long i;
++register int32_t i;
+ {
+     register Char *cp2;
+     register Char ch, ch2;
+@@ -1738,7 +1738,7 @@
+ 
+ 
+ 
+-long strlenv(s1)
++int32_t strlenv(s1)
+ register Char *s1;
+ {
+     register int len = 0;
+@@ -1776,7 +1776,7 @@
+ 
+ Char *strhex(res, i, w)
+ Char *res;
+-long i, w;
++int32_t i, w;
+ {
+     if (w < 1 || w > 8)
+         sprintf(res, "%lX", i);
+@@ -1789,11 +1789,11 @@
+ 
+ Char *strbinary(res, i, w)
+ Char *res;
+-register long i, w;
++register int32_t i, w;
+ {
+     if (w < 1 || w > 32) {
+         if (i) {
+-            register long i2 = i;
++            register int32_t i2 = i;
+             w = 32;
+             while (i2 >= 0) {
+                 w--;
+@@ -1816,7 +1816,7 @@
+ Char *strdate(res, opts)    /* ignore opts for now */
+ Char *res, *opts;
+ {
+-    time_t t = time((long *)0);
++    time_t t = time(0);
+     strcpy(res, (char *) ctime(&t));
+     res[strlen(res)-1] = 0;    /* eat the \n */
+     return res;
+diff -aur diglog32/psys/src/newcrt.c diglog64/psys/src/newcrt.c
+--- diglog32/psys/src/newcrt.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/newcrt.c	2017-02-05 16:16:00.417010000 +0100
+@@ -96,6 +96,8 @@
+   0, 0,                               /*  width_inc, height_inc  */
+   { 0, 0 },                           /*  min_aspect             */
+   { 0, 0 },                           /*  max_aspect             */
++  WinW, WinH,                         /* base_width, base_height */
++  0,                                  /* win_gravity */
+ };
+ 
+ static char *progname = "newcrt";
+diff -aur diglog32/psys/src/p2clib.c diglog64/psys/src/p2clib.c
+--- diglog32/psys/src/p2clib.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/p2clib.c	2017-02-05 14:48:25.509336000 +0100
+@@ -520,19 +520,19 @@
+ 
+ 
+ 
+-/* Sets are stored as an array of longs.  S[0] is the size of the set;
++/* Sets are stored as an array of int32_ts.  S[0] is the size of the set;
+    S[N] is the N'th 32-bit chunk of the set.  S[0] equals the maximum
+    I such that S[I] is nonzero.  S[0] is zero for an empty set.  Within
+-   each long, bits are packed from lsb to msb.  The first bit of the
++   each int32_t, bits are packed from lsb to msb.  The first bit of the
+    set is the element with ordinal value 0.  (Thus, for a "set of 5..99",
+-   the lowest five bits of the first long are unused and always zero.) */
++   the lowest five bits of the first int32_t are unused and always zero.) */
+ 
+-/* (Sets with 32 or fewer elements are normally stored as plain longs.) */
++/* (Sets with 32 or fewer elements are normally stored as plain int32_ts.) */
+ 
+-long *P_setunion(d, s1, s2)         /* d := s1 + s2 */
+-register long *d, *s1, *s2;
++int32_t *P_setunion(d, s1, s2)         /* d := s1 + s2 */
++register int32_t *d, *s1, *s2;
+ {
+-    long *dbase = d++;
++    int32_t *dbase = d++;
+     register int sz1 = *s1++, sz2 = *s2++;
+     while (sz1 > 0 && sz2 > 0) {
+         *d++ = *s1++ | *s2++;
+@@ -547,10 +547,10 @@
+ }
+ 
+ 
+-long *P_setint(d, s1, s2)           /* d := s1 * s2 */
+-register long *d, *s1, *s2;
++int32_t *P_setint(d, s1, s2)           /* d := s1 * s2 */
++register int32_t *d, *s1, *s2;
+ {
+-    long *dbase = d++;
++    int32_t *dbase = d++;
+     register int sz1 = *s1++, sz2 = *s2++;
+     while (--sz1 >= 0 && --sz2 >= 0)
+         *d++ = *s1++ & *s2++;
+@@ -560,11 +560,11 @@
+ }
+ 
+ 
+-long *P_setdiff(d, s1, s2)          /* d := s1 - s2 */
+-register long *d, *s1, *s2;
++int32_t *P_setdiff(d, s1, s2)          /* d := s1 - s2 */
++int32_t *d, *s1, *s2;
+ {
+-    long *dbase = d++;
+-    register int sz1 = *s1++, sz2 = *s2++;
++    int32_t *dbase = d++;
++    int sz1 = *s1++, sz2 = *s2++;
+     while (--sz1 >= 0 && --sz2 >= 0)
+         *d++ = *s1++ & ~*s2++;
+     if (sz1 >= 0) {
+@@ -577,10 +577,10 @@
+ }
+ 
+ 
+-long *P_setxor(d, s1, s2)         /* d := s1 / s2 */
+-register long *d, *s1, *s2;
++int32_t *P_setxor(d, s1, s2)         /* d := s1 / s2 */
++register int32_t *d, *s1, *s2;
+ {
+-    long *dbase = d++;
++    int32_t *dbase = d++;
+     register int sz1 = *s1++, sz2 = *s2++;
+     while (sz1 > 0 && sz2 > 0) {
+         *d++ = *s1++ ^ *s2++;
+@@ -598,7 +598,7 @@
+ 
+ int P_inset(val, s)                 /* val IN s */
+ register unsigned val;
+-register long *s;
++register int32_t *s;
+ {
+     register int bit;
+     bit = val % SETBITS;
+@@ -609,11 +609,11 @@
+ }
+ 
+ 
+-long *P_addset(s, val)              /* s := s + [val] */
+-register long *s;
++int32_t *P_addset(s, val)              /* s := s + [val] */
++register int32_t *s;
+ register unsigned val;
+ {
+-    register long *sbase = s;
++    register int32_t *sbase = s;
+     register int bit, size;
+     bit = val % SETBITS;
+     val /= SETBITS;
+@@ -630,11 +630,11 @@
+ }
+ 
+ 
+-long *P_addsetr(s, v1, v2)              /* s := s + [v1..v2] */
+-register long *s;
++int32_t *P_addsetr(s, v1, v2)              /* s := s + [v1..v2] */
++register int32_t *s;
+ register unsigned v1, v2;
+ {
+-    register long *sbase = s;
++    register int32_t *sbase = s;
+     register int b1, b2, size;
+     if ((int)v1 > (int)v2)
+ 	return sbase;
+@@ -663,8 +663,8 @@
+ }
+ 
+ 
+-long *P_remset(s, val)              /* s := s - [val] */
+-register long *s;
++int32_t *P_remset(s, val)              /* s := s - [val] */
++register int32_t *s;
+ register unsigned val;
+ {
+     register int bit;
+@@ -680,7 +680,7 @@
+ 
+ 
+ int P_setequal(s1, s2)              /* s1 = s2 */
+-register long *s1, *s2;
++register int32_t *s1, *s2;
+ {
+     register int size = *s1++;
+     if (*s2++ != size)
+@@ -694,7 +694,7 @@
+ 
+ 
+ int P_subset(s1, s2)                /* s1 <= s2 */
+-register long *s1, *s2;
++register int32_t *s1, *s2;
+ {
+     register int sz1 = *s1++, sz2 = *s2++;
+     if (sz1 > sz2)
+@@ -707,13 +707,13 @@
+ }
+ 
+ 
+-long *P_setcpy(d, s)                /* d := s */
+-register long *d, *s;
++int32_t *P_setcpy(d, s)                /* d := s */
++register int32_t *d, *s;
+ {
+-    register long *save_d = d;
++    register int32_t *save_d = d;
+ 
+ #ifdef SETCPY_MEMCPY
+-    memcpy(d, s, (*s + 1) * sizeof(long));
++    memcpy(d, s, (*s + 1) * sizeof(int32_t));
+ #else
+     register int i = *s + 1;
+     while (--i >= 0)
+@@ -724,11 +724,11 @@
+ 
+ 
+ /* s is a "smallset", i.e., a 32-bit or less set stored
+-   directly in a long. */
++   directly in a int32_t. */
+ 
+-long *P_expset(d, s)                /* d := s */
+-register long *d;
+-register long s;
++int32_t *P_expset(d, s)                /* d := s */
++register int32_t *d;
++register int32_t s;
+ {
+     if (s) {
+ 	d[1] = s;
+@@ -739,8 +739,8 @@
+ }
+ 
+ 
+-long P_packset(s)                   /* convert s to a small-set */
+-register long *s;
++int32_t P_packset(s)                   /* convert s to a small-set */
++register int32_t *s;
+ {
+     if (*s++)
+         return *s;
+@@ -819,7 +819,7 @@
+ 
+ 
+ 
+-int _OutMem()
++long _OutMem()
+ {
+     return _Escape(-2);
+ }
+diff -aur diglog32/psys/src/plot.c diglog64/psys/src/plot.c
+--- diglog32/psys/src/plot.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/plot.c	2017-02-05 15:55:36.140005000 +0100
+@@ -122,7 +122,7 @@
+ } swap2;
+ 
+ typedef union swap4 {
+-        long ival;
++        int32_t ival;
+         unsigned char c[4];
+ } swap4;
+ 
+@@ -146,7 +146,7 @@
+      return s.ival;
+ }
+ 
+-Local long getintsw(c)
++Local int32_t getintsw(c)
+ char *c;
+ {
+     swap4 s;
+@@ -172,16 +172,16 @@
+ 
+ Static short w1x, w1y, w2x, w2y, pp1x, pp1y, pp2x, pp2y, p1x, p1y, p2x, p2y,
+ 	     pltc, pltcolr, pltpat, plotter;
+-Static long csnum, csden, csn, csnxx, csnxy, csnyx, csnyy, sbo, spo, sod,
++Static int32_t csnum, csden, csn, csnxx, csnxy, csnyx, csnyy, sbo, spo, sod,
+ 	    csns, csnc, csah, csav, csad, csd, csdsc, cssc, cscsc, orgx,
+             orgy, pltx, plty, xpos, ypos, sc;
+-Static long b1x, b1y, b2x, b2y;
++Static int32_t b1x, b1y, b2x, b2y;
+ Static double csth;
+ Static boolean quality, fast, rotate, fancy, pendn, spendn, hasellipse;
+ Static Char prefchar[11], ctrlchars[11], ctrllchars[11];
+ Static outmodekind outmode;
+ 
+-Static long ps_curx, ps_cury, ps_curstyle, ps_veccount;
++Static int32_t ps_curx, ps_cury, ps_curstyle, ps_veccount;
+ Static boolean ps_flag, ps_needinit;
+ Static Char *ff_title;
+ 
+@@ -190,7 +190,7 @@
+ 
+ Static chardesc **ix;
+ Static plot_fontrec *curft;
+-Static long loadft[9];
++Static int32_t loadft[9];
+ Static Char fontfn[256], headerfn[256]=PSLIB"/texstuff.ps";
+ Static boolean headerincflag;
+ Static FILE **outf, **foutf;
+@@ -275,7 +275,7 @@
+ plot_devrec *rec;
+ {
+   Char s[256];
+-  long i;
++  size_t i;
+ 
+   switch (rec->act) {
+ 
+@@ -501,7 +501,7 @@
+ }
+ 
+ Local Void writecoord(x, LINK)
+-long x;
++int32_t x;
+ struct LOC_ps_proc *LINK;
+ {
+   sprintf(LINK->s + strlen(LINK->s), "%ld", x);
+@@ -512,7 +512,7 @@
+ double x;
+ struct LOC_ps_proc *LINK;
+ {
+-  long i;
++  size_t i;
+ 
+   i = strlen(LINK->s) + 1;
+   LINK->s[255] = '\0';
+@@ -533,7 +533,7 @@
+ struct LOC_showstr {
+   struct LOC_showstring *LINK;
+   boolean showit;
+-  long where;
++  int32_t where;
+   Char buf[256];
+ } ;
+ 
+@@ -580,7 +580,7 @@
+ {
+   /*cheap subset of $ formats*/
+   struct LOC_showstr V;
+-  long i;
++  size_t i;
+ 
+   V.LINK = LINK;
+   V.showit = showit_;
+@@ -630,7 +630,7 @@
+ 
+ Local Void showstring(msg_, x, y, mode, font, num, den, sc, theta, LINK)
+ Char *msg_;
+-long x, y, mode, font, num, den, sc;
++int32_t x, y, mode, font, num, den, sc;
+ double theta;
+ struct LOC_ps_proc *LINK;
+ {
+@@ -734,7 +734,7 @@
+ plot_devrec *rec;
+ {
+   struct LOC_ps_proc V;
+-  long i, FORLIM;
++  int32_t i, FORLIM;
+ 
+   switch (rec->act) {
+ 
+@@ -900,7 +900,7 @@
+ } ;
+ 
+ Local Void dofigs(col, c1, c2, c3)
+-long col;
++int32_t col;
+ Char c1, c2, c3;
+ {
+   Char STR1[12];
+@@ -949,7 +949,7 @@
+ }
+ 
+ Local Void writecoord_(x, LINK)
+-long x;
++int32_t x;
+ struct LOC_ff_proc *LINK;
+ {
+   sprintf(LINK->s + strlen(LINK->s), "%ld", x);
+@@ -1149,7 +1149,7 @@
+ Static Void graphics_proc(rec)
+ plot_devrec *rec;
+ {
+-  long i;
++  int32_t i;
+ 
+   switch (rec->act) {
+ 
+@@ -1248,7 +1248,7 @@
+ Static Void ucase(s)
+ Char *s;
+ {
+-  long i, FORLIM;
++  size_t i, FORLIM;
+ 
+   FORLIM = strlen(s);
+   for (i = 0; i < FORLIM; i++) {
+@@ -1262,7 +1262,7 @@
+ Static Void lcase(s)
+ Char *s;
+ {
+-  long i, FORLIM;
++  size_t i, FORLIM;
+ 
+   FORLIM = strlen(s);
+   for (i = 0; i < FORLIM; i++) {
+@@ -1360,7 +1360,7 @@
+ 
+ 
+ Void plot_p1p2(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   pp1x = x1;
+   pp1y = y1;
+@@ -1375,7 +1375,7 @@
+ Char *title_;
+ {
+   Char title[256];
+-  long i;
++  size_t i;
+ 
+   strcpy(title, title_);
+   if (ff_title == NULL)
+@@ -1400,7 +1400,7 @@
+ 
+ 
+ Void plot_init(addr, sizecode)
+-long addr;
++int32_t addr;
+ Char sizecode;
+ {
+   long i;
+@@ -1459,7 +1459,7 @@
+ 
+ 
+ Void plot_warminitscreen(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   long i;
+ 
+@@ -1490,7 +1490,7 @@
+ 
+ 
+ Void plot_initscreen(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   /*$if false$
+ var k : short_int;
+@@ -1674,7 +1674,7 @@
+ 
+ 
+ Static Void window_(x1, y1, x2, y2, rot)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ boolean rot;
+ {
+   long sc1, i;
+@@ -1729,7 +1729,7 @@
+ 
+ 
+ Void plot_window(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   window_(x1, y1, x2, y2, labs(x2 - x1) < labs(y2 - y1));
+ }
+@@ -1737,7 +1737,7 @@
+ 
+ 
+ Void plot_nrwindow(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   window_(x1, y1, x2, y2, false);
+ }
+@@ -1745,7 +1745,7 @@
+ 
+ 
+ Void plot_pwindow(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   window_(x1, y1, x2, y2, pp2x - pp1x >= pp2y - pp1y);
+ }
+@@ -1753,7 +1753,7 @@
+ 
+ 
+ Void plot_lwindow(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   window_(x1, y1, x2, y2, pp2x - pp1x < pp2y - pp1y);
+ }
+@@ -1762,7 +1762,7 @@
+ 
+ 
+ Void plot_getwindow(x1, y1, x2, y2)
+-long *x1, *y1, *x2, *y2;
++int32_t *x1, *y1, *x2, *y2;
+ {
+   *x1 = w1x;
+   *y1 = w1y;
+@@ -1891,7 +1891,7 @@
+ 
+ 
+ Static Void pattern(pat)
+-long pat;
++int32_t pat;
+ {
+   rec.act = plot_act_pattern;
+   rec.x1 = pat;
+@@ -1904,7 +1904,7 @@
+ 
+ 
+ Static Void pmove(x, y)
+-long x, y;
++int32_t x, y;
+ {
+   if (x == pltx && y == plty)
+     return;
+@@ -1928,7 +1928,7 @@
+ 
+ 
+ Static Void pdraw(x, y)
+-long x, y;
++int32_t x, y;
+ {
+   lowerpen();
+   if (rotate) {
+@@ -1950,7 +1950,7 @@
+ 
+ 
+ Static Void pcircle(pat, rx, ry)
+-long pat;
++int32_t pat;
+ double rx, ry;
+ {
+   Char s[256];
+@@ -2020,7 +2020,7 @@
+ 
+ 
+ Void plot_color(c)
+-long c;
++int32_t c;
+ {
+   pltcolr = c;
+ }
+@@ -2092,10 +2092,10 @@
+ 
+ 
+ 
+-long plot_cm(cm)
++int32_t plot_cm(cm)
+ double cm;
+ {
+-  long i;
++  int32_t i;
+ 
+   i = (long)(cm * unitspcm * scale_ / sc);
+   if (i <= 0)
+@@ -2106,7 +2106,7 @@
+ 
+ 
+ Void plot_xform(x, y, xx, yy)
+-long x, y, *xx, *yy;
++int32_t x, y, *xx, *yy;
+ {
+   x = (x - orgx) * sc / scale_;
+   y = (y - orgy) * sc / scale_;
+@@ -2122,7 +2122,7 @@
+ 
+ Void plot_rxform(x, y, xx, yy)
+ double x, y;
+-long *xx, *yy;
++int32_t *xx, *yy;
+ {
+   long ix, iy;
+ 
+@@ -2140,7 +2140,7 @@
+ 
+ 
+ Void plot_unxform(xx, yy, x, y)
+-long xx, yy, *x, *y;
++int32_t xx, yy, *x, *y;
+ {
+   if (rotate) {
+     *y = xx - p1y;
+@@ -2156,7 +2156,7 @@
+ 
+ 
+ Void plot_relxform(x, y, xx, yy)
+-long x, y, *xx, *yy;
++int32_t x, y, *xx, *yy;
+ {
+   x = x * sc / scale_;
+   y = y * sc / scale_;
+@@ -2172,7 +2172,7 @@
+ 
+ Void plot_rrelxform(x, y, xx, yy)
+ double x, y;
+-long *xx, *yy;
++int32_t *xx, *yy;
+ {
+   long ix, iy;
+ 
+@@ -2190,7 +2190,7 @@
+ 
+ 
+ Void plot_relunxform(xx, yy, x, y)
+-long xx, yy, *x, *y;
++int32_t xx, yy, *x, *y;
+ {
+   if (rotate) {
+     *y = xx;
+@@ -2206,7 +2206,7 @@
+ 
+ 
+ Void plot_linestyle(num)
+-long num;
++int32_t num;
+ {
+   rec.act = plot_act_style;
+   rec.x1 = num;
+@@ -2227,7 +2227,7 @@
+ 
+ 
+ Void plot_move(x, y)
+-long x, y;
++int32_t x, y;
+ {
+   xpos = x;
+   ypos = y;
+@@ -2247,7 +2247,7 @@
+ 
+ 
+ Void plot_draw(x, y)
+-long x, y;
++int32_t x, y;
+ {
+   defpen();
+   xpos = x;
+@@ -2269,7 +2269,7 @@
+ 
+ 
+ Void plot_moverel(dx, dy)
+-long dx, dy;
++int32_t dx, dy;
+ {
+   plot_move(xpos + dx, ypos + dy);
+ }
+@@ -2277,7 +2277,7 @@
+ 
+ 
+ Void plot_drawrel(dx, dy)
+-long dx, dy;
++int32_t dx, dy;
+ {
+   plot_draw(xpos + dx, ypos + dy);
+ }
+@@ -2285,7 +2285,7 @@
+ 
+ 
+ Void plot_line(x1, y1, x2, y2)
+-long x1, y1, x2, y2;
++int32_t x1, y1, x2, y2;
+ {
+   defpen();
+   plot_move(x1, y1);
+@@ -2295,7 +2295,7 @@
+ 
+ 
+ Void plot_roundbox(x1, y1, x2, y2, rx, ry, pat)
+-long x1, y1, x2, y2, rx, ry, pat;
++int32_t x1, y1, x2, y2, rx, ry, pat;
+ {
+   defpen();
+   pattern(pat);
+@@ -2321,7 +2321,7 @@
+ 
+ Void plot_rroundbox(x1, y1, x2, y2, rx, ry, pat)
+ double x1, y1, x2, y2, rx, ry;
+-long pat;
++int32_t pat;
+ {
+   defpen();
+   pattern(pat);
+@@ -2346,7 +2346,7 @@
+ 
+ 
+ Void plot_box(x1, y1, x2, y2, pat)
+-long x1, y1, x2, y2, pat;
++int32_t x1, y1, x2, y2, pat;
+ {
+   plot_roundbox(x1, y1, x2, y2, 0L, 0L, pat);
+ }
+@@ -2354,7 +2354,7 @@
+ 
+ 
+ Void plot_circle(x1, y1, r, pat)
+-long x1, y1, r, pat;
++int32_t x1, y1, r, pat;
+ {
+   defpen();
+   plot_move(x1, y1);
+@@ -2365,9 +2365,9 @@
+ 
+ 
+ Void plot_rellipse(x1, y1, rx, ry, pat)
+-long x1, y1;
++int32_t x1, y1;
+ double rx, ry;
+-long pat;
++int32_t pat;
+ {
+   defpen();
+   plot_move(x1, y1);
+@@ -2379,7 +2379,7 @@
+ 
+ Void plot_rrellipse(x1, y1, rx, ry, pat)
+ double x1, y1, rx, ry;
+-long pat;
++int32_t pat;
+ {
+   defpen();
+   plot_rmove(x1, y1);
+@@ -2395,10 +2395,10 @@
+ } ;
+ 
+ Local Void bezier(x1, y1, x2, y2, x3, y3, x4, y4, LINK)
+-long x1, y1, x2, y2, x3, y3, x4, y4;
++int32_t x1, y1, x2, y2, x3, y3, x4, y4;
+ struct LOC_plot_rbezier *LINK;
+ {
+-  long x5, y5, x7, y7, x8, y8, x9, y9, x10, y10;
++  int32_t x5, y5, x7, y7, x8, y8, x9, y9, x10, y10;
+   double y43, x43, y42, x42;
+ 
+   /*   if (abs(x1 - x2) < epsilon) and (abs(y1 - y2) < epsilon) and
+@@ -2433,10 +2433,10 @@
+ 
+ Void plot_rbezier(x1, y1, x2, y2, x3, y3, x4, y4, epsilon_)
+ double x1, y1, x2, y2, x3, y3, x4, y4;
+-long epsilon_;
++int32_t epsilon_;
+ {
+   struct LOC_plot_rbezier V;
+-  long smalle, xx, yy, ix1, iy1, ix2, iy2, ix3, iy3, ix4, iy4;
++  int32_t smalle, xx, yy, ix1, iy1, ix2, iy2, ix3, iy3, ix4, iy4;
+   double reps;
+   Char STR1[256], STR2[256];
+   Char STR3[256];
+@@ -2484,7 +2484,7 @@
+ 
+ 
+ Void plot_bezier(x1, y1, x2, y2, x3, y3, x4, y4, epsilon)
+-long x1, y1, x2, y2, x3, y3, x4, y4, epsilon;
++int32_t x1, y1, x2, y2, x3, y3, x4, y4, epsilon;
+ {
+   plot_rbezier((double)x1, (double)y1, (double)x2, (double)y2, (double)x3,
+ 	       (double)y3, (double)x4, (double)y4, epsilon);
+@@ -2493,11 +2493,11 @@
+ 
+ 
+ Void plot_polygon(n, x, y, pat)
+-long n;
+-long *x, *y;
+-long pat;
++int32_t n;
++int32_t *x, *y;
++int32_t pat;
+ {
+-  long *xx, *yy;
++  int32_t *xx, *yy;
+   long i;
+   Anyptr xxptr=&xx,yyptr=&yy;
+ 
+@@ -2572,14 +2572,14 @@
+ 
+ 
+ typedef struct _REC_findexarr {
+-  long ptr;
++  int32_t ptr;
+   short siz;
+ } _REC_findexarr;
+ 
+ typedef _REC_findexarr findexarr[1000000L];
+ 
+ typedef struct fontdesc {
+-  long ptr;
++  int32_t ptr;
+   uchar num, height, attr, numchrs;
+ } fontdesc;
+ 
+@@ -2624,9 +2624,9 @@
+ 
+ 
+ Void plot_loadfonts(which_)
+-long *which_;
++int32_t *which_;
+ {
+-  long which[9];
++  int32_t which[9];
+   FILE *f;
+   _REC_findexarr *fix;
+   fname *fnm;
+@@ -2642,10 +2642,10 @@
+   chardesc *loadme;
+   Char fn[256], fn2[256];
+   boolean all, warned, failed;
+-  long SET[257];
++  int32_t SET[257];
+   Char STR1[256];
+   short FORLIM;
+-  long SET1[257];
++  int32_t SET1[257];
+   short TEMP;
+   short FORLIM1;
+   Char STR4[256];
+@@ -2700,13 +2700,13 @@
+       continue;
+ /* p2c: plot.text, line 2344: Note: Can't interpret size in NA_NEW [174] */
+     loadme = (chardesc *)Malloc(4L);   /*dummy address*/
+-    fread(STR1, sizeof(long), 1, f);
++    fread(STR1, sizeof(int32_t), 1, f);
+     ver = (long)getintsw(STR1);
+-    fread(STR1, sizeof(long), 1, f);
++    fread(STR1, sizeof(int32_t), 1, f);
+     ixp = (long)getintsw(STR1);
+-    fread(STR1, sizeof(long), 1, f);
++    fread(STR1, sizeof(int32_t), 1, f);
+     nmp = (long)getintsw(STR1);
+-    fread(STR1, sizeof(long), 1, f);
++    fread(STR1, sizeof(int32_t), 1, f);
+     ftp = (long)getintsw(STR1);
+     if (ver != 1) {
+       printf("Font file %s is incorrect version\n", fn2);
+@@ -2902,7 +2902,7 @@
+ 
+ Void plot_morefontset(fn, which)
+ Char *fn;
+-long *which;
++int32_t *which;
+ {
+   plot_fontfile(fn);
+   plot_loadfonts(which);
+@@ -2912,7 +2912,7 @@
+ 
+ Void plot_readfontset(fn, which)
+ Char *fn;
+-long *which;
++int32_t *which;
+ {
+   plot_initfonts();
+   plot_morefontset(fn, which);
+@@ -2923,7 +2923,7 @@
+ Void plot_readfont(fn)
+ Char *fn;
+ {
+-  long SET[9];
++  int32_t SET[9];
+ 
+   plot_readfontset(fn, P_expset(SET, 0L));
+ }
+@@ -2950,10 +2950,10 @@
+ 
+ 
+ Void plot_selfont(num)
+-long num;
++int32_t num;
+ {
+   plot_fontrec *ft;
+-  long SET[257];
++  int32_t SET[257];
+ 
+   plot_loadfonts(P_addset(P_expset(SET, 0L), (int)num));
+   ft = plot_fontbase;
+@@ -2965,7 +2965,7 @@
+ 
+ 
+ 
+-long plot_height()
++int32_t plot_height()
+ {
+   if (curft != NULL)
+     return (curft->height);
+@@ -2989,7 +2989,7 @@
+ 
+ 
+ Void plot_charsize(num, den, scale)
+-long num, den, scale;
++int32_t num, den, scale;
+ {
+   if (den == 0)
+     _Escape(-5);
+@@ -3006,7 +3006,7 @@
+ 
+ 
+ Void plot_charscale(scale)
+-long scale;
++int32_t scale;
+ {
+   cscsc = scale;
+   plotsize();
+@@ -3047,7 +3047,7 @@
+ 
+ 
+ Void plot_charaspect(horiz, vert, den)
+-long horiz, vert, den;
++int32_t horiz, vert, den;
+ {
+   csah = horiz;
+   csav = vert;
+@@ -3057,7 +3057,7 @@
+ 
+ 
+ 
+-long plot_charnum(ch)
++int32_t plot_charnum(ch)
+ Char ch;
+ {
+   if (curft == NULL)
+@@ -3068,7 +3068,7 @@
+ 
+ 
+ 
+-long plot_charname(s)
++int32_t plot_charname(s)
+ Char *s;
+ {
+   plot_namerec *nm;
+@@ -3085,7 +3085,7 @@
+ 
+ 
+ Void plot_ssoffset(sub, sup, den)
+-long sub, sup, den;
++int32_t sub, sup, den;
+ {
+   sbo = sub;
+   spo = sup;
+@@ -3095,7 +3095,7 @@
+ 
+ 
+ Static Void plotchar(x, y, num)
+-long *x, *y, num;
++int32_t *x, *y, num;
+ {
+   short i;
+   long xx, yy, x0, y0, x1, y1, x2, y2, x3, y3;
+@@ -3142,7 +3142,7 @@
+ 
+ 
+ Void plot_char(x, y, num)
+-long x, y, num;
++int32_t x, y, num;
+ {
+   if (csd == 0)
+     plotsize();
+@@ -3154,18 +3154,18 @@
+ 
+ /* Local variables for plotstring: */
+ struct LOC_plotstring {
+-  long *x, *y;
++  int32_t *x, *y;
+   Char *s;
+   boolean plotit;
+   short i, j;
+ } ;
+ 
+-Local long strnum(binary, term, LINK)
++Local int32_t strnum(binary, term, LINK)
+ boolean binary;
+ Char term;
+ struct LOC_plotstring *LINK;
+ {
+-  long Result, n;
++  int32_t Result, n;
+ 
+   if (binary) {
+     if (LINK->i > strlen(LINK->s))
+@@ -3191,7 +3191,7 @@
+ struct LOC_plotstring *LINK;
+ {
+   Char ch;
+-  long x0, y0, num;
++  int32_t x0, y0, num;
+   plot_fontrec *orgft;
+   boolean done, flag;
+   chardesc *WITH;
+@@ -3312,7 +3312,7 @@
+ 
+ 
+ Static Void plotstring(x_, y_, s_, plotit_)
+-long *x_, *y_;
++int32_t *x_, *y_;
+ Char *s_;
+ boolean plotit_;
+ {
+@@ -3340,7 +3340,7 @@
+ 
+ 
+ Static Void stringlen(x, y, s_)
+-long *x, *y;
++int32_t *x, *y;
+ Char *s_;
+ {
+   Char s[256];
+@@ -3357,7 +3357,7 @@
+ Char *s_;
+ {
+   Char s[256];
+-  long x, y;
++  int32_t x, y;
+ 
+   strcpy(s, s_);
+   x = (xpos - orgx) * csd;
+@@ -3370,9 +3370,9 @@
+ 
+ 
+ Static boolean candotext(x, y, s, mode)
+-long x, y;
++int32_t x, y;
+ Char *s;
+-long mode;
++int32_t mode;
+ {
+   defpen();
+   rec.act = plot_act_text;
+@@ -3401,7 +3401,7 @@
+ 
+ 
+ Void plot_string(x, y, s_)
+-long x, y;
++int32_t x, y;
+ Char *s_;
+ {
+   Char s[256];
+@@ -3416,11 +3416,11 @@
+ 
+ 
+ Void plot_rightstring(x, y, s_)
+-long x, y;
++int32_t x, y;
+ Char *s_;
+ {
+   Char s[256];
+-  long x1, y1;
++  int32_t x1, y1;
+ 
+   strcpy(s, s_);
+   if (candotext(x, y, s, 3L))
+@@ -3433,11 +3433,11 @@
+ 
+ 
+ Void plot_centerstring(x, y, s_)
+-long x, y;
++int32_t x, y;
+ Char *s_;
+ {
+   Char s[256];
+-  long x1, y1;
++  int32_t x1, y1;
+ 
+   strcpy(s, s_);
+   if (candotext(x, y, s, 2L))
+@@ -3450,11 +3450,11 @@
+ 
+ 
+ Void plot_genstring(x, y, orient_, s_)
+-long x, y;
++int32_t x, y;
+ Char *orient_, *s_;
+ {
+   Char orient[256], s[256];
+-  long i, x1, y1;
++  int32_t i, x1, y1;
+ 
+   strcpy(orient, orient_);
+   strcpy(s, s_);
+@@ -3506,10 +3506,10 @@
+ }
+ 
+ 
+-long plot_stringwidth(s)
++int32_t plot_stringwidth(s)
+ Char *s;
+ {
+-  long x1, y1;
++  int32_t x1, y1;
+ 
+   stringlen(&x1, &y1, s);
+   return ((x1 + y1) / csd);
+diff -aur diglog32/psys/src/rnd.c diglog64/psys/src/rnd.c
+--- diglog32/psys/src/rnd.c	2014-05-27 03:52:39.000000000 +0200
++++ diglog64/psys/src/rnd.c	2017-02-05 15:59:49.208544000 +0100
+@@ -18,12 +18,10 @@
+ long *seed;
+ long limit;
+ {
+-  long ret;
+-
+   srand48(*seed);
+   *seed = lrand48();
+   if (limit != 0)
+-    return(abs(*seed % limit)); /* I know, I know.  This skews probabilities */
++    return(labs(*seed % limit)); /* I know, I know.  This skews probabilities */
+ 			        /* slightly toward low numbers unless limit  */
+ 			        /* is a divisor of 2^32.  Tough.             */
+   else

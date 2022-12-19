@@ -1,0 +1,80 @@
+diff -ru a/log/src/log.c b/log/src/log.c
+--- a/log/src/log.c	2020-11-30 20:35:16.950659700 +0100
++++ b/log/src/log.c	2020-11-30 20:22:54.467659300 +0100
+@@ -4303,7 +4303,8 @@
+ short x1, y1, x2, y2, c;
+ {
+   m_color((long)c);
+-  m_linestyle(1L);
++  //m_linestyle(1L);
++  m_linestyle(0L);
+   rect(x1, y1, x2, y2);
+   m_linestyle(0L);
+ }
+@@ -5271,6 +5272,7 @@
+ 
+ Static Void pass()
+ {
++    usleep(10000);
+   log_grec *g, *g1, *g2;
+   log_nrec *n, *n1, *n2;
+   log_hwrec *hw;
+@@ -10523,7 +10525,8 @@
+   clipon();
+   m_colormode((long)m_xor);
+   m_color((long)gg.color.dashbox);
+-  m_linestyle(1L);
++  //m_linestyle(1L);
++  m_linestyle(0L);
+   rect(copybuf.x1copy, copybuf.y1copy, copybuf.x2copy, copybuf.y2copy);
+   m_linestyle(0L);
+   m_colormode((long)m_normal);
+@@ -10785,7 +10788,8 @@
+     cursortype = paste;
+     clipon();
+     m_color((long)gg.color.dashbox);
+-    m_linestyle(1L);
++    //m_linestyle(1L);
++    m_linestyle(0L);
+     rect(buf.x1copy, buf.y1copy, buf.x2copy, buf.y2copy);
+     m_linestyle(0L);
+     clipoff();
+@@ -10800,7 +10804,8 @@
+ 	  scroll();
+ 	  clipon();
+ 	  m_color((long)gg.color.dashbox);
+-	  m_linestyle(1L);
++	  //m_linestyle(1L);
++	  m_linestyle(0L);
+ 	  rect(buf.x1copy, buf.y1copy, buf.x2copy, buf.y2copy);
+ 	  m_linestyle(0L);
+ 	  clipoff();
+@@ -15675,7 +15680,8 @@
+ 	y1 = gg.gridy;
+ 	m_colormode((long)m_xor);
+ 	m_color((long)gg.color.dashbox);
+-	m_linestyle(1L);
++	//m_linestyle(1L);
++	m_linestyle(0L);
+ 	rect(gg.posx, gg.posy, x1, y1);
+ 	m_linestyle(0L);
+ 	m_colormode((long)m_normal);
+@@ -15687,7 +15693,8 @@
+ 		 *gg.func == '\0');
+ 	m_colormode((long)m_xor);
+ 	m_color((long)gg.color.dashbox);
+-	m_linestyle(1L);
++	//m_linestyle(1L);
++	m_linestyle(0L);
+ 	rect(gg.posx, gg.posy, x1, y1);
+ 	m_linestyle(0L);
+ 	m_colormode((long)m_normal);
+@@ -21852,7 +21859,7 @@
+   rabflag = false;
+   firsttraining = true;
+   training = false;
+-  cureditmode = 1;
++  cureditmode = 4;
+   *modename = '\0';
+   modeflag = false;
+   modetime = 0;

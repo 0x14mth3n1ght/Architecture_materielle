@@ -1,0 +1,53 @@
+./diglog digproc/*lgf&
+
+EXO1
+
+1) r0=59,r1=42
+2)
+ldi r1, 42
+addi r0, r1, 17
+end: jmp end
+
+cat exo1.asm.hi 
+0000:09 #9 en hexa = 1001 en binaire
+0001:40 #64 = 1100100
+0002:e0 #224 = 11100000
+
+cat exo1.asm.lo
+0000:2a #42 en hexa = 101010
+0001:31 #49 = 110001
+0002:02 #2 = 10
+
+3)
+./digcomp exo1.asm 
+end = 2
+--------
+   0: r1 <- 42
+   1: r0 <- r1 + 17
+   2: goto end
+
+4)./diglog digproc/*.lgf (puis -) -> reset 1 cycle , mettre en rouge
+
+lo: 101010 -> 2a
+
+clic droit dans la boite en haut -> save .lo et .hi respectivement
+reset 1 fois + clic bouton bas clock (2 * = 1 instruction)
+résultat addition -> fils alu 8 
+shift+4 à l'ouverture
+
+11011100 // 59=00111011
+
+7)
+inst	|do_jmp_abs	|write_reg	|arg2_imm|res_imm
+ldi	|0		|1		|x	 |1
+addi	|0		|1		|1	 |0
+jmp	|1		 0		 x	  x
+nop	 0		 0		 x	  x
+
+8) fichiers langage.pdf
+jmp : 111 ->& 3premiers fils
+
+EXO2
+
+2) Sub -> prendre en compte 5 = (2+3) cas selon rd = ou <= ou <rs etc-> add5
+Finir de rajouter un 2nd banc de registres

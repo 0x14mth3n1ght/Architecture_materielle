@@ -1,0 +1,234 @@
+diff -ru a/log/src/log.c b/log/src/log.c
+--- a/log/src/log.c	2022-07-26 14:45:48.755960296 +0200
++++ b/log/src/log.c	2022-07-27 14:56:10.508778145 +0200
+@@ -15560,7 +15560,7 @@
+     } while (!(pollkbd2() || gg.t.dn));
+     if (!gg.t.dn) {
+       ch = inkey2();
+-      if (ch >= 32 || ((1L << ch) & 0x10002108L) == 0) {
++      if (ch >= 32 || ((1L << ch) & 0x10002108L) == 0 || ch == '\b' || ch == 127) {
+ 	remcursor();
+ 	m_color((long)gg.color.backgr);
+ /* p2c: log.text, line 14898:
+@@ -15569,7 +15569,7 @@
+ 	redraw = true;
+       } else
+ 	redraw = false;
+-      if (ch >= ' ' && ch != 250 && ch != 251 && strlen(name) < log_lablen) {
++      if (ch >= ' ' && ch != 250 && ch != 251 && ch != 127 && strlen(name) < log_lablen) {
+ /* p2c: log.text, line 14903: Note: Character >= 128 encountered [281] */
+ /* p2c: log.text, line 14903: Note: Character >= 128 encountered [281] */
+ 	if (i <= strlen(name)) {
+@@ -15582,7 +15582,7 @@
+       } else if (ch == '\007' && i > 1) {
+ 	i--;
+ 	strcpy_overlap(name + i - 1, name + i);
+-      } else if (ch == '\030' && i <= strlen(name))
++      } else if ((ch == '\030' || ch == 127) && i <= strlen(name))
+ 	strcpy_overlap(name + i - 1, name + i);
+       else if (ch == '\b' && i > 1)
+ 	i--;
+@@ -15592,11 +15592,11 @@
+ 	i = 1;
+       else if (ch == '\032')
+ 	i = strlen(name) + 1;
+-      else if (ch == '\n' && strlen(name) < log_lablen) {
+-	sprintf(STR1, " %s", name + i - 1);
+-	strcpy(name + i - 1, STR1);
+-      } else if (ch == '\037' && i <= strlen(name) && strlen(name) > 1)
+-	strcpy_overlap(name + i - 1, name + i);
++//      else if (ch == '\n' && strlen(name) < log_lablen) {
++//	sprintf(STR1, " %s", name + i - 1);
++//	strcpy(name + i - 1, STR1);
++//      } else if (ch == '\037' && i <= strlen(name) && strlen(name) > 1)
++//	strcpy_overlap(name + i - 1, name + i);
+       if (redraw) {
+ 	remcursor();
+ 	m_color((long)gg.color.labeltext);
+@@ -15605,7 +15605,7 @@
+ 	m_drawstr((long)x1, (long)y1, logfont_lfont, name);
+       }
+     }
+-  } while (!((ch < 32 && ((1L << ch) & 0x2008) != 0) || gg.t.dn));
++  } while (!((ch < 32 && ((1L << ch) & 0x2008) != 0) || gg.t.dn || ch == 27 /*Esc*/));
+   if (*name == '\0')
+     displabel(&l);
+   else if (strcmp(name, l->name)) {
+@@ -20741,9 +20741,9 @@
+ Static Void initmacros()
+ {
+   definemacro(171, "EXIT *");   /*control-D*/
+-  definemacro(':', "DO");
++  fprintf(stderr, "skipping    definemacro(':', \"DO\");    \n");
+   definemacro(' ', "REFRESH");
+-  definemacro('!', "SHELL");
++  fprintf(stderr, "skipping    definemacro('!', \"SHELL\");    \n");
+   definemacro('1', "PAGE 1");
+   definemacro('2', "PAGE 2");
+   definemacro('3', "PAGE 3");
+@@ -20755,47 +20755,48 @@
+   definemacro('9', "PAGE 9");
+   definemacro('*', "PASTE");
+   definemacro(',', "ALTPOSN");
+-  definemacro('.', "PROBE");
++  fprintf(stderr, "skipping    definemacro('.', \"PROBE\");    \n");
+   definemacro('/', "COPY");
+-  definemacro('0', "RESET");
++  fprintf(stderr, "skipping    definemacro('0', \"RESET\");    \n");
+   definemacro('<', "ZOOMDN");
+   definemacro('>', "ZOOMUP");
+   definemacro('?', "HELP");
+   definemacro('+', "PAGE +");
+   definemacro('-', "PAGE -");
+-  definemacro('A', "AUTOWINDOW");
++  fprintf(stderr, "skipping    definemacro('A', \"AUTOWINDOW\");    \n");
+   definemacro('b', "BOX");
+   definemacro('c', "CNFG");
+   definemacro('C', "CAT");
+   definemacro('d', "DEL");
+-  definemacro('D', "DEFINE");
+-  definemacro('e', "EXAMINE");
+-  definemacro('E', "EXAMINE");
+-  definemacro('f', "FAST");
++  fprintf(stderr, "skipping    definemacro('D', \"DEFINE\");    \n");
++  fprintf(stderr, "skipping    definemacro('e', \"EXAMINE\");    \n");
++  fprintf(stderr, "skipping    definemacro('E', \"EXAMINE\");    \n");
++  fprintf(stderr, "skipping    definemacro('f', \"FAST\");    \n");
+   definemacro('g', "GLOW");
+-  definemacro('G', "GRID");
++  fprintf(stderr, "skipping    definemacro('G', \"GRID\")    \n");
+   definemacro('h', "HOME");
+-  definemacro('i', "INVISIBLE");
+-  definemacro('I', "INVLABEL");
++  fprintf(stderr, "skipping    definemacro('i', \"INVISIBLE\");    \n");
++  fprintf(stderr, "skipping    definemacro('I', \"INVLABEL\");    \n");
+   definemacro('k', "SHOWCONFLICTS");
+   definemacro('l', "LABEL");
+   definemacro('L', "LOAD");
+   definemacro('m', "MOVE");
+   definemacro('M', "TAPMODE");
+-  definemacro('n', "INVPINNUM");
+-  definemacro('o', "ONOFF");
+-  definemacro('p', "PLOT");
++  fprintf(stderr, "skipping    definemacro('n', \"INVPINNUM\");    \n");
++  fprintf(stderr, "skipping    definemacro('o', \"ONOFF\");    \n");
++  fprintf(stderr, "skipping    definemacro('p', \"PLOT\");    \n");
+   definemacro('r', "ROT");
+   definemacro('R', "RESET");
+   definemacro('q', "QUIET");
+   definemacro('Q', "EXIT *");
+-  definemacro('s', "SCOPE");
++  fprintf(stderr, "skipping    definemacro('s', \"SCOPE\");    \n");
+   definemacro('S', "SAVE *");
+   definemacro('t', "STEP");
+-  definemacro('T', "TOOL");
++  fprintf(stderr, "skipping    definemacro('T', \"TOOL\");    \n");
+   definemacro('v', "VERBOSE");
+-  definemacro('x', "EXAMINE");
+-  definemacro('y', "YARDSTICK");
++  fprintf(stderr, "skipping    definemacro('x', \"EXAMINE\");    \n");
++  fprintf(stderr, "skipping    definemacro('y', \"YARDSTICK\");  ---> using 'y' for copy mode instead\n");
++  definemacro('y', "COPY");
+   definemacro('Z', "EXIT *");
+ /* p2c: log.text, line 19589: Note: Character >= 128 encountered [281] */
+   definemacro(250, "REFRESH");
+diff -ru a/log/src/logstuff.c b/log/src/logstuff.c
+--- a/log/src/logstuff.c	2014-05-27 03:52:39.000000000 +0200
++++ b/log/src/logstuff.c	2022-07-27 17:04:07.640376643 +0200
+@@ -191,7 +191,7 @@
+ 
+ void BEEPER(int x, int y)
+ {
+-  XBell(m_display, 0);
++  //XBell(m_display, 0);
+ }
+ 
+ 
+ 
+diff -ru a/psys/src/mylib.c b/psys/src/mylib.c
+--- a/psys/src/mylib.c	2022-07-26 14:45:42.643960145 +0200
++++ b/psys/src/mylib.c	2022-07-27 18:06:14.909466621 +0200
+@@ -432,6 +432,29 @@
+ 
+ static char *progname = "mylib";
+ 
++
++/* wrapper in order to handle scrolling with the arrow keys when num lock is enabled */
++int XLookupString_v2(XKeyEvent* event, char* buf, int size, KeySym* sym, XComposeStatus* status)
++{
++    int ret;
++    ret = XLookupString(event, buf, size, sym, status);
++    //fprintf(stderr, ">>>   buf=%d, key=%d\n", buf[0], *sym);
++    if (*sym == 65288) buf[0] = '\007'; // verr num + backspace --> diglog backspace
++    if (*sym >= 65361 && *sym <= 65364) {
++	/* an arrow key was pressed, let's make sure that buf is filled accordingly */
++	switch (*sym) {
++	    case 65361: buf[0] = '\b';   break;
++	    case 65362: buf[0] = '\037'; break;
++	    case 65363: buf[0] = '\034'; break;
++	    case 65364: buf[0] = '\n';   break;
++	}
++	ret = 1;
++    }
++    return ret;
++}
++
++
++
+ void GeneralTransform(x, y)
+ int *x, *y;
+ {
+@@ -4909,7 +4932,7 @@
+ boolean m_pollkbd()
+ {
+   XEvent event;
+-  char buf[10];
++  char buf[10] = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+   KeySym sym;
+ 
+   Kfprintf(stderr, "m_pollkbd()\n");
+@@ -4926,7 +4949,7 @@
+                  /* but may be too drastic (MDG)                          */
+     switch (event.type) {
+     case KeyPress: 
+-      if (XLookupString((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
++      if (XLookupString_v2((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
+ 	Xfprintf(stderr, "XPutBackEvent()  (m_pollkbd() Key event)\n");
+ 	XPutBackEvent(m_display, &event);
+ 	return(1);
+@@ -4996,7 +5019,7 @@
+                           StructureNotifyMask, &event);
+     nc_cursor_off();
+     if (event.type == KeyPress) {
+-      if (XLookupString((XKeyEvent *)&event, buf, 10, &sym, NULL))
++      if (XLookupString_v2((XKeyEvent *)&event, buf, 10, &sym, NULL))
+ 	return(buf[0]);
+     } else if ((event.type == Expose) && (event.xexpose.window == m_window) &&
+ 	       (event.xexpose.count == 0)) {
+@@ -5042,7 +5065,7 @@
+       return(0);
+     else {
+       if (event.type == KeyPress) {
+-	if (XLookupString((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
++	if (XLookupString_v2((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
+ 	  Xfprintf(stderr, "XPutBackEvent()  (m_inkeyn() Key event)\n");
+ 	  XPutBackEvent(m_display, &event);
+ 	  return(buf[0]);
+@@ -5085,7 +5108,7 @@
+                                      StructureNotifyMask, &event))
+       return(0);
+     if (event.type == KeyPress) {
+-      if (XLookupString((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
++      if (XLookupString_v2((XKeyEvent *)&event, buf, 10, &sym, NULL)) {
+ 	Xfprintf(stderr, "XPutBackEvent()  (m_testkey() key event)\n");
+ 	XPutBackEvent(m_display, &event);
+ 	return(buf[0]);
+@@ -5201,7 +5224,7 @@
+         fprintf(stderr, " in popup window\n");
+       else
+ 	fprintf(stderr, " in window %d\n", event.xany.window);   */
+-      if (XLookupString((XKeyEvent *)&event, buf, 10, &sym, NULL))
++      if (XLookupString_v2((XKeyEvent *)&event, buf, 10, &sym, NULL))
+ 	{
+ 	  if ((buf[0] == 'y') || (buf[0] == 'Y')) 
+ 	    {
