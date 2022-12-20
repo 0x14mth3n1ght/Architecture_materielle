@@ -10,7 +10,7 @@ Lire le HOWTO_install_diglog.txt (fichiers patchs déjà téléchargés ici)
 
 ```
 sudo apt update && sudo apt upgrade
-sudo apt install libx11-dev i686 edition build-essential
+sudo apt install libx11-dev i686
 ```
 
 -Pour Arch:
