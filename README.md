@@ -1,4 +1,4 @@
-TPs d'architecture matérielle , avec le logiciel diglog.
+TPs d'architecture matérielle , avec le logiciel diglog. Ci-joint un petit script d'installation et quelques notes.
 
 # Dépendances:
 
