@@ -53,4 +53,4 @@ cd log/src
 make
 
 cd ../..
-echo "Installation terminée, lancer ./bin/diglog"
+echo "Installation terminée, lancer ./diglog/bin/diglog"
