@@ -31,14 +31,7 @@ if [[ "$distribution" == *"Debian"* ]] || [[ "$distribution" == *"Ubuntu"* ]]; t
         sudo apt install libx11-dev
 fi
 
-# Récupération des sources
-wget http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/log-5.66.tar.gz
-wget http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/psys-1.61.tar.gz
-
-# Récupération des patchs
-wget http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/diglog.patch
-wget http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/perfs.patch
-wget http://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/additional.patch
+# Installation
 
 mkdir diglog
 cd diglog
