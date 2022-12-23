@@ -38,6 +38,7 @@ Lancer:
 
 ```
 chmod +x install.sh; ./install.sh
+```
 
 # Utilisation
 
@@ -47,14 +48,17 @@ En pratique le binaire a été copié dans le répertoire de chaque tp l'utilisa
 # Lancement
 
 Logiciel:
+
 ```
 ./diglog/bin/diglog &
 ```
 
 TPs:
+
 ```
 ./diglog/bin/diglog tpx/tpx.lgf &
 ```
 
 Sujets:
+
 https://web4.ensiie.fr/~christophe.mouilleron/Teaching/ARMA/
