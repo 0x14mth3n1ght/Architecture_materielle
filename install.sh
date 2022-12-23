@@ -1,6 +1,11 @@
 # Utiliser la commande "uname" pour récupérer la version du noyau
 kernel_version=$(uname -r)
-distribution=$(lsb_release -d)
+
+# Mac
+if [[ "$kernel_version" == *"Darwin" ]]; then
+        /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
+        brew install lsb_release
+        brew install libx11
 
 # Wsl (Ubuntu, Debian)
 if [[ "$kernel_version" == *"-Microsoft" ]]; then
@@ -10,12 +15,15 @@ if [[ "$kernel_version" == *"-Microsoft" ]]; then
 	echo "export LIBGL_ALWAYS_INDIRECT=1" >> ~/.bashrc
 fi
 
+distribution=$(lsb_release -d)
+
 # Arch
 if [[ "$distribution" == *"Arch"* ]]; then
 	sudo pacman -Syu
 	sudo pacman -S xorg-fonts-misc xorg-mkfontscale
 fi
 
+# Debian
 if [[ "$distribution" == *"Debian"* ]] || [[ "$distribution" == *"Ubuntu"* ]]; then
 	sudo apt update && sudo apt upgrade
         sudo apt install libx11-dev
