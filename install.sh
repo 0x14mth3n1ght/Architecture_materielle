@@ -6,6 +6,8 @@ if [[ "$kernel_version" == *"Darwin" ]]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
         brew install lsb_release
         brew install libx11
+	echo "souci architecture"
+fi
 
 # Wsl (Ubuntu, Debian)
 if [[ "$kernel_version" == *"-Microsoft" ]]; then
@@ -58,4 +60,4 @@ cd log/src
 make
 
 cd ../..
-./bin/diglog
+echo "Installation terminée, lancer ./bin/diglog"
