@@ -33,7 +33,7 @@ Enfin, démarrer le serveur X, cocher disable access control.
 
 # Installation
 
-Lire le HOWTO_install_diglog.txt (fichiers patchs déjà téléchargés ici)
+Ce script fonctionne sur Arch, Debian, Ubuntu et Wsl. À la fin de l'installation, l'éxécutable sera disponible dans diglog/bin.
 Lancer:
 
 ```
