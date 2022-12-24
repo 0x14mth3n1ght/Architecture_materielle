@@ -2,7 +2,7 @@
 kernel_version=$(uname -r)
 
 # Mac
-if [[ "$kernel_version" == *"Darwin" ]]; then
+if [[ "$kernel_version" == *"darwin"* ]]; then
         /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install.sh)"
         brew install lsb_release
         brew install libx11
@@ -10,11 +10,12 @@ if [[ "$kernel_version" == *"Darwin" ]]; then
 fi
 
 # Wsl (Ubuntu, Debian)
-if [[ "$kernel_version" == *"-Microsoft" ]]; then
+if [[ "$kernel_version" == *"microsoft"* ]]; then
 	sudo apt update && sudo apt upgrade
 	sudo apt install libx11-dev
 	echo "export DISPLAY=$(ip route list default | awk '{print $3}'):0" >> ~/.bashrc
 	echo "export LIBGL_ALWAYS_INDIRECT=1" >> ~/.bashrc
+	source ~/.bashrc
 fi
 
 distribution=$(lsb_release -d)
